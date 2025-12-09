@@ -21,27 +21,89 @@ async function main(): Promise<void> {
 
   if (existingUser) {
     console.log("✅ Admin user already exists, skipping creation.");
-    return;
+  } else {
+    // Hashear la contraseña
+    const hashedPassword = await hashPassword(adminPassword);
+
+    // Crear el usuario administrador
+    const adminUser = await prisma.user.create({
+      data: {
+        email: adminEmail,
+        password: hashedPassword,
+        name: "Administrator",
+        role: "OWNER",
+        isActive: true,
+      },
+    });
+
+    console.log("✅ Admin user created successfully!");
+    console.log(`   Email: ${adminUser.email}`);
+    console.log(`   Role: ${adminUser.role}`);
+    console.log(`   ID: ${adminUser.id}`);
   }
 
-  // Hashear la contraseña
-  const hashedPassword = await hashPassword(adminPassword);
+  // Crear paquetes por defecto
+  console.log("\n📦 Creating default packages...");
 
-  // Crear el usuario administrador
-  const adminUser = await prisma.user.create({
-    data: {
-      email: adminEmail,
-      password: hashedPassword,
-      name: "Administrator",
-      role: "OWNER",
-      isActive: true,
+  const defaultPackages = [
+    {
+      name: "Paquete Básico",
+      suggestedPrice: 150000,
     },
-  });
+    {
+      name: "Paquete Estándar",
+      suggestedPrice: 300000,
+    },
+    {
+      name: "Paquete Premium",
+      suggestedPrice: 500000,
+    },
+    {
+      name: "Paquete Deluxe",
+      suggestedPrice: 750000,
+    },
+    {
+      name: "Paquete Boda",
+      suggestedPrice: 1200000,
+    },
+    {
+      name: "Paquete Quinceañera",
+      suggestedPrice: 1000000,
+    },
+    {
+      name: "Paquete Graduación",
+      suggestedPrice: 400000,
+    },
+    {
+      name: "Paquete Familiar",
+      suggestedPrice: 250000,
+    },
+  ];
 
-  console.log("✅ Admin user created successfully!");
-  console.log(`   Email: ${adminUser.email}`);
-  console.log(`   Role: ${adminUser.role}`);
-  console.log(`   ID: ${adminUser.id}`);
+  for (const pkg of defaultPackages) {
+    const existingPackage = await prisma.package.findFirst({
+      where: {
+        name: pkg.name,
+        deletedAt: null,
+      },
+    });
+
+    if (!existingPackage) {
+      const createdPackage = await prisma.package.create({
+        data: {
+          name: pkg.name,
+          suggestedPrice: pkg.suggestedPrice,
+        },
+      });
+      console.log(
+        `   ✅ Created package: ${createdPackage.name} - $${createdPackage.suggestedPrice}`
+      );
+    } else {
+      console.log(`   ⏭️  Package already exists: ${pkg.name}`);
+    }
+  }
+
+  console.log("\n✅ Seed completed successfully!");
 }
 
 main()

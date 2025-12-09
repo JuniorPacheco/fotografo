@@ -6,6 +6,7 @@ import { ValidationError, NotFoundError } from "../utils/errors";
 // Schemas de validación
 const createInvoiceSchema = z.object({
   clientId: z.string().uuid("Invalid client ID"),
+  packageId: z.string().uuid("Invalid package ID").optional().nullable(),
   totalAmount: z.number().positive("Total amount must be positive"),
   maxNumberSessions: z.number().int().positive().min(1).max(100).optional(),
   photosFolderPath: z.string().max(500).optional(),
@@ -17,6 +18,7 @@ const createInvoiceSchema = z.object({
 
 const updateInvoiceSchema = z.object({
   clientId: z.string().uuid("Invalid client ID").optional(),
+  packageId: z.string().uuid("Invalid package ID").optional().nullable(),
   totalAmount: z.number().positive("Total amount must be positive").optional(),
   maxNumberSessions: z.number().int().positive().min(1).max(100).optional(),
   photosFolderPath: z.string().max(500).optional().nullable(),
@@ -35,6 +37,7 @@ export async function createInvoice(
     const body = createInvoiceSchema.parse(req.body);
     const {
       clientId,
+      packageId,
       totalAmount,
       maxNumberSessions,
       photosFolderPath,
@@ -54,9 +57,24 @@ export async function createInvoice(
       throw new NotFoundError("Client not found");
     }
 
+    // Verificar que el paquete existe si se proporciona
+    if (packageId) {
+      const package_ = await prisma.package.findFirst({
+        where: {
+          id: packageId,
+          deletedAt: null,
+        },
+      });
+
+      if (!package_) {
+        throw new NotFoundError("Package not found");
+      }
+    }
+
     const invoice = await prisma.invoice.create({
       data: {
         clientId,
+        packageId: packageId || null,
         totalAmount,
         maxNumberSessions: maxNumberSessions || 1,
         photosFolderPath: photosFolderPath || null,
@@ -226,6 +244,13 @@ export async function getInvoiceById(
           cedula: true,
         },
       },
+      package: {
+        select: {
+          id: true,
+          name: true,
+          suggestedPrice: true,
+        },
+      },
       sessions: {
         orderBy: {
           sessionNumber: "asc",
@@ -295,6 +320,22 @@ export async function updateInvoice(
 
       if (!client) {
         throw new NotFoundError("Client not found");
+      }
+    }
+
+    // Si se actualiza packageId, verificar que el paquete existe
+    if (body.packageId !== undefined) {
+      if (body.packageId) {
+        const package_ = await prisma.package.findFirst({
+          where: {
+            id: body.packageId,
+            deletedAt: null,
+          },
+        });
+
+        if (!package_) {
+          throw new NotFoundError("Package not found");
+        }
       }
     }
 

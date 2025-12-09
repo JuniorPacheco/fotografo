@@ -10,6 +10,7 @@
  */
 export type * from './models/User'
 export type * from './models/Client'
+export type * from './models/Package'
 export type * from './models/Invoice'
 export type * from './models/Session'
 export type * from './models/Payment'

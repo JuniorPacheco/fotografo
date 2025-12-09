@@ -28,6 +28,11 @@ export type User = Prisma.UserModel
  */
 export type Client = Prisma.ClientModel
 /**
+ * Model Package
+ * 
+ */
+export type Package = Prisma.PackageModel
+/**
  * Model Invoice
  * 
  */

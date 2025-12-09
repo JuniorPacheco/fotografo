@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import type { Invoice, UpdateInvoiceRequest } from "@/types/invoice";
 import type { Client } from "@/types/client";
+import type { Package } from "@/types/package";
 import { invoiceService } from "@/services/invoice.service";
 import { clientService } from "@/services/client.service";
+import { packageService } from "@/services/package.service";
 import {
   Dialog,
   DialogContent,
@@ -37,10 +39,12 @@ function InvoiceModal({
 }: InvoiceModalProps) {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [clients, setClients] = useState<Client[]>([]);
+  const [packages, setPackages] = useState<Package[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState<UpdateInvoiceRequest>({
     clientId: "",
+    packageId: null,
     totalAmount: 0,
     maxNumberSessions: 1,
     photosFolderPath: null,
@@ -52,6 +56,7 @@ function InvoiceModal({
     if (isOpen && invoiceId) {
       loadInvoice();
       loadClients();
+      loadPackages();
     }
   }, [isOpen, invoiceId]);
 
@@ -64,6 +69,7 @@ function InvoiceModal({
       setInvoice(invoiceData);
       setFormData({
         clientId: invoiceData.clientId,
+        packageId: invoiceData.packageId || null,
         totalAmount: Number(invoiceData.totalAmount),
         maxNumberSessions: invoiceData.maxNumberSessions,
         photosFolderPath: invoiceData.photosFolderPath,
@@ -83,6 +89,15 @@ function InvoiceModal({
       setClients(response.data.clients);
     } catch (error) {
       console.error("Error loading clients:", error);
+    }
+  };
+
+  const loadPackages = async () => {
+    try {
+      const response = await packageService.getAll({ limit: 1000 });
+      setPackages(response.data.packages);
+    } catch (error) {
+      console.error("Error loading packages:", error);
     }
   };
 
@@ -133,6 +148,39 @@ function InvoiceModal({
                   {clients.map((client) => (
                     <SelectItem key={client.id} value={client.id}>
                       {client.name} - {client.phone}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="packageId">Paquete</Label>
+              <Select
+                value={formData.packageId || "__none__"}
+                onValueChange={(value) => {
+                  if (value === "__none__") {
+                    setFormData({
+                      ...formData,
+                      packageId: null,
+                    });
+                  } else {
+                    setFormData({
+                      ...formData,
+                      packageId: value,
+                      // No modificamos el monto total al cambiar el paquete
+                    });
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar paquete (opcional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">Ninguno</SelectItem>
+                  {packages.map((pkg) => (
+                    <SelectItem key={pkg.id} value={pkg.id}>
+                      {pkg.name} - ${pkg.suggestedPrice.toLocaleString("es-CO")}
                     </SelectItem>
                   ))}
                 </SelectContent>

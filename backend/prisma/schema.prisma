@@ -91,10 +91,26 @@ model Client {
   @@map("clients")
 }
 
+// Paquete de fotografía
+model Package {
+  id             String    @id @default(uuid())
+  name           String
+  suggestedPrice Decimal   @db.Decimal(10, 2) // Precio sugerido del paquete
+  deletedAt      DateTime? // Soft delete
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  invoices Invoice[]
+
+  @@index([deletedAt])
+  @@map("packages")
+}
+
 // Factura/Contrato de fotografía
 model Invoice {
   id                String        @id @default(uuid())
   clientId          String
+  packageId         String? // Opcional - Paquete seleccionado
   totalAmount       Decimal       @db.Decimal(10, 2) // Total a pagar
   status            InvoiceStatus @default(PENDING)
   maxNumberSessions Int           @default(1) // Número máximo de sesiones permitidas
@@ -104,10 +120,12 @@ model Invoice {
   updatedAt         DateTime      @updatedAt
 
   client   Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  package  Package?  @relation(fields: [packageId], references: [id], onDelete: SetNull)
   sessions Session[]
   payments Payment[]
 
   @@index([clientId])
+  @@index([packageId])
   @@index([status])
   @@map("invoices")
 }

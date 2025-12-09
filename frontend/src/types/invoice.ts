@@ -1,6 +1,7 @@
 export interface Invoice {
   id: string;
   clientId: string;
+  packageId: string | null;
   totalAmount: number;
   paidAmount: number;
   remainingAmount: number;
@@ -15,6 +16,11 @@ export interface Invoice {
     name: string;
     phone: string;
   };
+  package?: {
+    id: string;
+    name: string;
+    suggestedPrice: number;
+  } | null;
   _count: {
     sessions: number;
     payments: number;
@@ -23,6 +29,7 @@ export interface Invoice {
 
 export interface CreateInvoiceRequest {
   clientId: string;
+  packageId?: string | null;
   totalAmount: number;
   maxNumberSessions?: number;
   photosFolderPath?: string;
@@ -32,6 +39,7 @@ export interface CreateInvoiceRequest {
 
 export interface UpdateInvoiceRequest {
   clientId?: string;
+  packageId?: string | null;
   totalAmount?: number;
   maxNumberSessions?: number;
   photosFolderPath?: string | null;

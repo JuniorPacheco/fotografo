@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import Clientes from "./pages/Clientes";
 import Facturas from "./pages/Facturas";
 import Pagos from "./pages/Pagos";
+import Paquetes from "./pages/Paquetes";
 import Login from "./pages/Login";
 import GoogleCallback from "./pages/GoogleCallback";
 
@@ -49,6 +50,16 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <Pagos />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/paquetes"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Paquetes />
             </Layout>
           </ProtectedRoute>
         }

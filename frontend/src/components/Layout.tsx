@@ -10,6 +10,7 @@ import {
   Users,
   FileText,
   DollarSign,
+  Package,
   LogOut,
   Menu,
   ChevronLeft,
@@ -40,6 +41,7 @@ function Layout({ children }: LayoutProps) {
     { path: "/clientes", label: "Clientes", icon: Users },
     { path: "/facturas", label: "Facturas", icon: FileText },
     { path: "/pagos", label: "Pagos", icon: DollarSign },
+    { path: "/paquetes", label: "Paquetes", icon: Package },
   ];
 
   return (
