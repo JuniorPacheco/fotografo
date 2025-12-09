@@ -64,6 +64,12 @@ export async function createSession(
             email: true,
           },
         },
+        package: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
 
@@ -132,6 +138,7 @@ export async function createSession(
         const eventDescription = [
           `Cliente: ${invoice.client.name}`,
           `Teléfono: ${invoice.client.phone}`,
+          invoice.package ? `Paquete: ${invoice.package.name}` : null,
           `Sesión #${finalSessionNumber}`,
           invoice.notes ? `Notas: ${invoice.notes}` : null,
           notes ? `Notas de sesión: ${notes}` : null,
@@ -298,6 +305,12 @@ export async function getSessionById(
               phone: true,
             },
           },
+          package: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
       },
     },
@@ -333,6 +346,12 @@ export async function updateSession(
                 id: true,
                 name: true,
                 phone: true,
+              },
+            },
+            package: {
+              select: {
+                id: true,
+                name: true,
               },
             },
           },
@@ -409,9 +428,15 @@ export async function updateSession(
         const endDate = new Date(parsedScheduledAt);
         endDate.setHours(endDate.getHours() + 1);
 
+        const invoicePackage = (
+          existingSession.invoice as { package?: { name: string } | null }
+        ).package;
+
+        console.log("invoicePackage", invoicePackage);
         const eventDescription = [
           `Cliente: ${existingSession.invoice.client.name}`,
           `Teléfono: ${existingSession.invoice.client.phone}`,
+          invoicePackage ? `Paquete: ${invoicePackage.name}` : null,
           `Sesión #${body.sessionNumber ?? existingSession.sessionNumber}`,
           existingSession.invoice.notes
             ? `Notas: ${existingSession.invoice.notes}`
