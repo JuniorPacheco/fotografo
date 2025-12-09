@@ -4,6 +4,7 @@ import { prisma } from "../config/prisma";
 import { SessionStatus } from "../generated/prisma/enums";
 import { NotFoundError, ValidationError } from "../utils/errors";
 import { createEvent, updateEvent, deleteEvent } from "../utils/googleCalendar";
+import { sendDigitalPhotosPolicyReminder } from "../services/email.service";
 
 // Schemas de validación
 const createSessionSchema = z.object({
@@ -60,6 +61,7 @@ export async function createSession(
             id: true,
             name: true,
             phone: true,
+            email: true,
           },
         },
       },
@@ -181,6 +183,41 @@ export async function createSession(
         },
       },
     });
+
+    // Enviar recordatorio sobre política de fotos digitales si:
+    // 1. El estado es SCHEDULED (o no se especificó, que por defecto es SCHEDULED)
+    // 2. Hay una fecha programada
+    // 3. La fecha programada es mayor o igual a la fecha actual
+    // 4. El cliente tiene email
+    const finalStatus = status || "SCHEDULED";
+    const shouldSendReminder =
+      finalStatus === "SCHEDULED" &&
+      parsedScheduledAt !== null &&
+      invoice.client.email !== null &&
+      parsedScheduledAt >= new Date();
+
+    if (shouldSendReminder && invoice.client.email) {
+      try {
+        // Formatear la hora de la sesión
+        const sessionTime = new Intl.DateTimeFormat("es-ES", {
+          hour: "2-digit",
+          minute: "2-digit",
+          timeZone: "America/Bogota",
+        }).format(parsedScheduledAt);
+
+        await sendDigitalPhotosPolicyReminder(
+          invoice.client.email,
+          invoice.client.name,
+          parsedScheduledAt,
+          sessionTime,
+          invoice.client.name,
+          finalSessionNumber
+        );
+      } catch (error) {
+        // Log error but don't fail session creation if email fails
+        console.error("Failed to send digital photos policy reminder:", error);
+      }
+    }
 
     res.status(201).json({
       success: true,
