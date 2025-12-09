@@ -35,6 +35,12 @@ interface PaymentInvoiceTemplateData {
   isUpdate: boolean;
 }
 
+interface ClientReminderTemplateData {
+  recipientName: string;
+  clientName: string;
+  description: string;
+}
+
 export function getSessionReminderTemplate(data: SessionReminderTemplateData): {
   htmlContent: string;
   textContent: string;
@@ -484,5 +490,74 @@ Este es un correo automático, por favor no respondas a este mensaje.
     subject: `${
       data.isUpdate ? "Actualización de " : ""
     }Factura de Pago - ${formattedPaymentAmount}`,
+  };
+}
+
+export function getClientReminderTemplate(data: ClientReminderTemplateData): {
+  htmlContent: string;
+  textContent: string;
+  subject: string;
+} {
+  const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <h1 style="color: #2c3e50; margin-top: 0;">Recordatorio Importante</h1>
+          </div>
+          
+          <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0;">
+            <p>Estimado/a <strong>${data.recipientName}</strong>,</p>
+            
+            <p>Te enviamos este recordatorio relacionado con <strong>${data.clientName}</strong>:</p>
+            
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #4caf50;">
+              <p style="margin: 0; white-space: pre-wrap;">${data.description}</p>
+            </div>
+            
+            <p style="margin-top: 30px;">
+              Si tienes alguna pregunta o necesitas más información, 
+              no dudes en contactarnos.
+            </p>
+            
+            <p style="margin-top: 30px;">
+              Saludos cordiales,<br>
+              <strong>Cabal Studios</strong>
+            </p>
+          </div>
+          
+          <div style="margin-top: 20px; text-align: center; color: #666; font-size: 12px;">
+            <p>Este es un correo automático, por favor no respondas a este mensaje.</p>
+          </div>
+        </body>
+      </html>
+    `;
+
+  const textContent = `
+Recordatorio Importante
+
+Estimado/a ${data.recipientName},
+
+Te enviamos este recordatorio relacionado con ${data.clientName}:
+
+${data.description}
+
+Si tienes alguna pregunta o necesitas más información, no dudes en contactarnos.
+
+Saludos cordiales,
+Cabal Studios
+
+---
+Este es un correo automático, por favor no respondas a este mensaje.
+    `.trim();
+
+  return {
+    htmlContent,
+    textContent,
+    subject: `Recordatorio: ${data.clientName}`,
   };
 }

@@ -57,7 +57,8 @@ export const ModelName = {
   Invoice: 'Invoice',
   Session: 'Session',
   Payment: 'Payment',
-  GoogleToken: 'GoogleToken'
+  GoogleToken: 'GoogleToken',
+  Reminder: 'Reminder'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -174,6 +175,19 @@ export const GoogleTokenScalarFieldEnum = {
 } as const
 
 export type GoogleTokenScalarFieldEnum = (typeof GoogleTokenScalarFieldEnum)[keyof typeof GoogleTokenScalarFieldEnum]
+
+
+export const ReminderScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  clientName: 'clientName',
+  description: 'description',
+  sentAt: 'sentAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ReminderScalarFieldEnum = (typeof ReminderScalarFieldEnum)[keyof typeof ReminderScalarFieldEnum]
 
 
 export const SortOrder = {

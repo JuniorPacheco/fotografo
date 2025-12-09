@@ -186,10 +186,10 @@ function Facturas() {
               <Printer className="h-4 w-4 mr-2" />
               Imprimir Ventas
             </Button>
-            <Button onClick={() => setIsCreateModalOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Crear Factura
-            </Button>
+          <Button onClick={() => setIsCreateModalOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Crear Factura
+          </Button>
           </div>
         </div>
 

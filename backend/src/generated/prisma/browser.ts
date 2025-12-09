@@ -52,3 +52,8 @@ export type Payment = Prisma.PaymentModel
  * 
  */
 export type GoogleToken = Prisma.GoogleTokenModel
+/**
+ * Model Reminder
+ * 
+ */
+export type Reminder = Prisma.ReminderModel

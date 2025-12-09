@@ -181,3 +181,17 @@ model GoogleToken {
 
   @@map("google_tokens")
 }
+
+// Recordatorios de clientes
+model Reminder {
+  id          String    @id @default(uuid())
+  date        DateTime // Fecha del recordatorio (solo se compara dd-mm-yyyy)
+  clientName  String // Nombre del cliente
+  description String // Descripción del recordatorio
+  sentAt      DateTime? // Fecha en que se envió el recordatorio
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([date])
+  @@map("reminders")
+}

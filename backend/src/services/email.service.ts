@@ -6,6 +6,7 @@ import {
   getPaymentReminderTemplate,
   getDigitalPhotosPolicyReminderTemplate,
   getPaymentInvoiceTemplate,
+  getClientReminderTemplate,
 } from "./email.templates";
 
 interface EmailRecipient {
@@ -259,6 +260,29 @@ async function sendPaymentInvoice(
   });
 }
 
+async function sendClientReminder(
+  recipientEmail: string,
+  recipientName: string,
+  clientName: string,
+  description: string
+): Promise<brevo.CreateSmtpEmail> {
+  const template = getClientReminderTemplate({
+    recipientName,
+    clientName,
+    description,
+  });
+
+  return sendReminderEmail({
+    to: {
+      email: recipientEmail,
+      name: recipientName,
+    },
+    subject: template.subject,
+    htmlContent: template.htmlContent,
+    textContent: template.textContent,
+  });
+}
+
 // Exportar funciones directamente
 export {
   sendEmail,
@@ -267,4 +291,5 @@ export {
   sendPaymentReminder,
   sendDigitalPhotosPolicyReminder,
   sendPaymentInvoice,
+  sendClientReminder,
 };

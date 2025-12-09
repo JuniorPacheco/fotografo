@@ -6,6 +6,7 @@ import invoicesRouter from "./invoices.routes";
 import sessionsRouter from "./sessions.routes";
 import paymentsRouter from "./payments.routes";
 import packagesRouter from "./packages.routes";
+import remindersRouter from "./reminders.routes";
 import googleCalendarRouter from "./googleCalendar.routes";
 
 const router: Router = Router();
@@ -17,6 +18,7 @@ router.use("/invoices", invoicesRouter);
 router.use("/sessions", sessionsRouter);
 router.use("/payments", paymentsRouter);
 router.use("/packages", packagesRouter);
+router.use("/reminders", remindersRouter);
 router.use("/google-calendar", googleCalendarRouter);
 
 export default router;
