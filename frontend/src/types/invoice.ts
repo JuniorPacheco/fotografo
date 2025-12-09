@@ -15,6 +15,7 @@ export interface Invoice {
     id: string;
     name: string;
     phone: string;
+    address?: string;
   };
   package?: {
     id: string;

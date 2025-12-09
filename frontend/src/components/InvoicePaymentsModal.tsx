@@ -20,7 +20,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, Printer } from "lucide-react";
+import PaymentTicketModal from "./PaymentTicketModal";
 
 interface InvoicePaymentsModalProps {
   invoiceId: string | null;
@@ -46,7 +47,11 @@ function InvoicePaymentsModal({
   const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(
     null
   );
+  const [selectedPaymentIdForTicket, setSelectedPaymentIdForTicket] = useState<
+    string | null
+  >(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   useEffect(() => {
@@ -72,6 +77,16 @@ function InvoicePaymentsModal({
   const handleView = (paymentId: string) => {
     setSelectedPaymentId(paymentId);
     setIsPaymentModalOpen(true);
+  };
+
+  const handlePrintTicket = (paymentId: string) => {
+    setSelectedPaymentIdForTicket(paymentId);
+    setIsTicketModalOpen(true);
+  };
+
+  const handleTicketModalClose = () => {
+    setIsTicketModalOpen(false);
+    setSelectedPaymentIdForTicket(null);
   };
 
   const handleDelete = async (paymentId: string) => {
@@ -227,6 +242,15 @@ function InvoicePaymentsModal({
                               <Button
                                 variant="ghost"
                                 size="icon"
+                                onClick={() => handlePrintTicket(payment.id)}
+                                aria-label="Imprimir ticket"
+                                title="Imprimir ticket"
+                              >
+                                <Printer className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
                                 onClick={() => handleView(payment.id)}
                                 aria-label="Editar pago"
                                 title="Editar"
@@ -272,6 +296,12 @@ function InvoicePaymentsModal({
         onClose={() => setIsCreateModalOpen(false)}
         onCreated={handleCreated}
         invoiceId={invoiceId || undefined}
+      />
+
+      <PaymentTicketModal
+        paymentId={selectedPaymentIdForTicket}
+        isOpen={isTicketModalOpen}
+        onClose={handleTicketModalClose}
       />
     </>
   );

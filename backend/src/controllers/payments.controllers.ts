@@ -276,6 +276,12 @@ export async function getPaymentById(
               address: true,
             },
           },
+          package: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
       },
     },
