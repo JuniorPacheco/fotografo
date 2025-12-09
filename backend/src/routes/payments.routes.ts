@@ -269,6 +269,66 @@ router.get(
 
 /**
  * @swagger
+ * /payments/daily-sales:
+ *   get:
+ *     summary: Get daily sales report
+ *     tags: [Payments]
+ *     description: Retrieve all payments for a specific date with totals and breakdown by payment method. Only OWNER and ADMIN can access this endpoint.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: date
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *           pattern: '^\d{4}-\d{2}-\d{2}$'
+ *         description: Date in YYYY-MM-DD format
+ *         example: "2024-12-09"
+ *     responses:
+ *       200:
+ *         description: Daily sales report
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     date:
+ *                       type: string
+ *                     totalAmount:
+ *                       type: number
+ *                     totalPayments:
+ *                       type: integer
+ *                     totalsByMethod:
+ *                       type: object
+ *                       additionalProperties:
+ *                         type: number
+ *                     payments:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Insufficient permissions
+ */
+router.get(
+  "/daily-sales",
+  authenticate,
+  authorize("OWNER", "ADMIN"),
+  asyncHandler(paymentsControllers.getDailySales)
+);
+
+/**
+ * @swagger
  * /payments/{id}:
  *   get:
  *     summary: Get payment by ID

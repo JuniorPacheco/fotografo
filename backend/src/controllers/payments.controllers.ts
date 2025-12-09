@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { z } from "zod";
 import { prisma } from "../config/prisma";
 import { PaymentMethod } from "../generated/prisma/enums";
-import { NotFoundError, ValidationError } from "../utils/errors";
+import { NotFoundError, ValidationError, AppError } from "../utils/errors";
 import { sendPaymentInvoice } from "../services/email.service";
 
 // Schemas de validación
@@ -437,4 +437,114 @@ export async function deletePayment(
     success: true,
     message: "Payment deleted successfully",
   });
+}
+
+// Obtener ventas del día
+export async function getDailySales(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const { date } = req.query;
+
+    if (!date || typeof date !== "string") {
+      throw new ValidationError("Date parameter is required");
+    }
+
+    // Validar formato de fecha (YYYY-MM-DD)
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(date)) {
+      throw new ValidationError("Invalid date format. Use YYYY-MM-DD");
+    }
+
+    // Crear rango de fechas para el día completo en zona horaria de Colombia (UTC-5)
+    // La fecha viene en formato YYYY-MM-DD, la interpretamos como fecha local de Colombia
+    const [year, month, day] = date.split("-").map(Number);
+
+    // Crear fecha de inicio del día en hora de Colombia (00:00:00)
+    // Usamos UTC y luego ajustamos a Colombia (UTC-5)
+    const startDate = new Date(Date.UTC(year, month - 1, day, 5, 0, 0, 0)); // 05:00 UTC = 00:00 Colombia
+
+    // Crear fecha de fin del día en hora de Colombia (23:59:59.999)
+    // 04:59:59.999 del día siguiente en UTC = 23:59:59.999 del día actual en Colombia
+    const endDate = new Date(
+      Date.UTC(year, month - 1, day + 1, 4, 59, 59, 999)
+    );
+    // Obtener todos los pagos del día con información del cliente e invoice
+    const payments = await prisma.payment.findMany({
+      where: {
+        paymentDate: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      include: {
+        invoice: {
+          include: {
+            client: {
+              select: {
+                id: true,
+                name: true,
+                phone: true,
+              },
+            },
+            package: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        paymentDate: "asc",
+      },
+    });
+
+    // Calcular totales por método de pago
+    const totalsByMethod = payments.reduce((acc, payment) => {
+      const method = payment.method;
+      if (!acc[method]) {
+        acc[method] = 0;
+      }
+      acc[method] += Number(payment.amount);
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Calcular total general
+    const totalAmount = payments.reduce(
+      (sum, payment) => sum + Number(payment.amount),
+      0
+    );
+
+    // Formatear datos de pagos
+    const formattedPayments = payments.map((payment) => ({
+      id: payment.id,
+      amount: Number(payment.amount),
+      method: payment.method,
+      paymentDate: payment.paymentDate,
+      notes: payment.notes,
+      clientName: payment.invoice.client.name,
+      clientPhone: payment.invoice.client.phone,
+      packageName: payment.invoice.package?.name || null,
+    }));
+
+    res.status(200).json({
+      success: true,
+      data: {
+        date,
+        totalAmount,
+        totalPayments: payments.length,
+        totalsByMethod,
+        payments: formattedPayments,
+      },
+    });
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      throw error;
+    }
+    console.error("Error getting daily sales:", error);
+    throw new AppError("Failed to get daily sales", 500);
+  }
 }

@@ -5,6 +5,7 @@ import InvoiceModal from "@/components/InvoiceModal";
 import CreateInvoiceModal from "@/components/CreateInvoiceModal";
 import InvoicePaymentsModal from "@/components/InvoicePaymentsModal";
 import InvoiceSessionsModal from "@/components/InvoiceSessionsModal";
+import DailySalesModal from "@/components/DailySalesModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,6 +33,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Calendar,
+  Printer,
 } from "lucide-react";
 
 function Facturas() {
@@ -48,6 +50,7 @@ function Facturas() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isPaymentsModalOpen, setIsPaymentsModalOpen] = useState(false);
   const [isSessionsModalOpen, setIsSessionsModalOpen] = useState(false);
+  const [isDailySalesModalOpen, setIsDailySalesModalOpen] = useState(false);
 
   // Filtros y paginación
   const [page, setPage] = useState(1);
@@ -175,10 +178,19 @@ function Facturas() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">Facturas</h1>
-          <Button onClick={() => setIsCreateModalOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Crear Factura
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsDailySalesModalOpen(true)}
+            >
+              <Printer className="h-4 w-4 mr-2" />
+              Imprimir Ventas
+            </Button>
+            <Button onClick={() => setIsCreateModalOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Crear Factura
+            </Button>
+          </div>
         </div>
 
         {/* Filtros */}
@@ -399,6 +411,11 @@ function Facturas() {
           setSelectedInvoiceIdForSessions(null);
         }}
         onUpdate={handleUpdate}
+      />
+
+      <DailySalesModal
+        isOpen={isDailySalesModalOpen}
+        onClose={() => setIsDailySalesModalOpen(false)}
       />
     </>
   );

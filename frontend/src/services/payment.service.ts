@@ -6,6 +6,7 @@ import type {
   PaymentResponse,
   Payment,
 } from "@/types/payment";
+import type { DailySalesResponse } from "@/types/dailySales";
 
 export const paymentService = {
   getAll: async (params?: {
@@ -80,6 +81,16 @@ export const paymentService = {
       success: boolean;
       message: string;
     }>(`/payments/${id}`);
+    return response.data;
+  },
+
+  getDailySales: async (date: string): Promise<DailySalesResponse> => {
+    const response = await protectedApi.get<DailySalesResponse>(
+      "/payments/daily-sales",
+      {
+        params: { date },
+      }
+    );
     return response.data;
   },
 };
