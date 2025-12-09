@@ -189,9 +189,11 @@ model Reminder {
   clientName  String // Nombre del cliente
   description String // Descripción del recordatorio
   sentAt      DateTime? // Fecha en que se envió el recordatorio
+  isSent      Boolean   @default(false) // Indica si el recordatorio ya fue enviado
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
   @@index([date])
+  @@index([isSent])
   @@map("reminders")
 }

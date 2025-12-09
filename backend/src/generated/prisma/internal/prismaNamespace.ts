@@ -1148,6 +1148,7 @@ export const ReminderScalarFieldEnum = {
   clientName: 'clientName',
   description: 'description',
   sentAt: 'sentAt',
+  isSent: 'isSent',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

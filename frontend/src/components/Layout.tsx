@@ -11,6 +11,7 @@ import {
   FileText,
   DollarSign,
   Package,
+  Bell,
   LogOut,
   Menu,
   ChevronLeft,
@@ -42,6 +43,7 @@ function Layout({ children }: LayoutProps) {
     { path: "/facturas", label: "Facturas", icon: FileText },
     { path: "/pagos", label: "Pagos", icon: DollarSign },
     { path: "/paquetes", label: "Paquetes", icon: Package },
+    { path: "/recordatorios", label: "Recordatorios", icon: Bell },
   ];
 
   return (

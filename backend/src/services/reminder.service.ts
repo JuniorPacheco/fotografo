@@ -103,7 +103,7 @@ export async function processDailyReminders(): Promise<void> {
           // Marcar como enviado aunque no se haya enviado realmente para evitar reintentos
           await prisma.reminder.update({
             where: { id: reminder.id },
-            data: { sentAt: new Date() },
+            data: { sentAt: new Date(), isSent: true },
           });
           continue;
         }
@@ -119,7 +119,7 @@ export async function processDailyReminders(): Promise<void> {
         // Marcar como enviado
         await prisma.reminder.update({
           where: { id: reminder.id },
-          data: { sentAt: new Date() },
+          data: { sentAt: new Date(), isSent: true },
         });
 
         console.log(

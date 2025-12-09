@@ -6,6 +6,7 @@ import Clientes from "./pages/Clientes";
 import Facturas from "./pages/Facturas";
 import Pagos from "./pages/Pagos";
 import Paquetes from "./pages/Paquetes";
+import Recordatorios from "./pages/Recordatorios";
 import Login from "./pages/Login";
 import GoogleCallback from "./pages/GoogleCallback";
 
@@ -60,6 +61,16 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <Paquetes />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/recordatorios"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Recordatorios />
             </Layout>
           </ProtectedRoute>
         }
