@@ -28,6 +28,7 @@ function CreateClientModal({
     name: "",
     phone: "",
     address: "",
+    email: "",
     cedula: "",
   });
 
@@ -42,6 +43,7 @@ function CreateClientModal({
         name: "",
         phone: "",
         address: "",
+        email: "",
         cedula: "",
       });
       onCreated(newClientId);
@@ -108,6 +110,24 @@ function CreateClientModal({
               minLength={1}
               maxLength={500}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="create-email">Correo Electrónico</Label>
+            <Input
+              type="email"
+              id="create-email"
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+              maxLength={255}
+              placeholder="Opcional"
+            />
+            <p className="text-sm text-muted-foreground">
+              Si no agregas correo del cliente no podrá recibir los
+              recordatorios y alertas generadas por la aplicación
+            </p>
           </div>
 
           <div className="space-y-2">

@@ -8,6 +8,9 @@ const createClientSchema = z.object({
   name: z.string().min(1, "Name is required").max(200),
   phone: z.string().min(1, "Phone is required").max(20),
   address: z.string().min(1, "Address is required").max(500),
+  email: z
+    .union([z.string().email("Invalid email format").max(255), z.literal("")])
+    .optional(),
   cedula: z.string().max(20).optional(),
 });
 
@@ -15,6 +18,10 @@ const updateClientSchema = z.object({
   name: z.string().min(1).max(200).optional(),
   phone: z.string().min(1).max(20).optional(),
   address: z.string().min(1).max(500).optional(),
+  email: z
+    .union([z.string().email("Invalid email format").max(255), z.literal("")])
+    .optional()
+    .nullable(),
   cedula: z.string().max(20).optional().nullable(),
 });
 
@@ -22,13 +29,14 @@ const updateClientSchema = z.object({
 export async function createClient(req: Request, res: Response): Promise<void> {
   try {
     const body = createClientSchema.parse(req.body);
-    const { name, phone, address, cedula } = body;
+    const { name, phone, address, email, cedula } = body;
 
     const client = await prisma.client.create({
       data: {
         name,
         phone,
         address,
+        email: email && email.trim() !== "" ? email.trim() : null,
         cedula: cedula || null,
       },
     });
@@ -151,9 +159,20 @@ export async function updateClient(req: Request, res: Response): Promise<void> {
       throw new NotFoundError("Client not found");
     }
 
+    // Transform email: empty string becomes null
+    const updateData = {
+      ...body,
+      email:
+        body.email !== undefined
+          ? body.email && body.email.trim() !== ""
+            ? body.email.trim()
+            : null
+          : undefined,
+    };
+
     const client = await prisma.client.update({
       where: { id },
-      data: body,
+      data: updateData,
     });
 
     res.status(200).json({

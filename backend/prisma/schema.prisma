@@ -79,6 +79,7 @@ model Client {
   name      String
   phone     String
   address   String
+  email     String? // Opcional - Para recordatorios y alertas
   cedula    String? // Opcional
   deletedAt DateTime? // Soft delete
   createdAt DateTime  @default(now())

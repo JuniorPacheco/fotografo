@@ -3,6 +3,7 @@ export interface Client {
   name: string;
   phone: string;
   address: string;
+  email: string | null;
   cedula: string | null;
   createdAt: string;
   updatedAt: string;
@@ -12,6 +13,7 @@ export interface CreateClientRequest {
   name: string;
   phone: string;
   address: string;
+  email?: string;
   cedula?: string;
 }
 
@@ -19,6 +21,7 @@ export interface UpdateClientRequest {
   name?: string;
   phone?: string;
   address?: string;
+  email?: string | null;
   cedula?: string | null;
 }
 

@@ -167,6 +167,7 @@ function Clientes() {
                   <TableRow>
                     <TableHead>Nombre</TableHead>
                     <TableHead>Teléfono</TableHead>
+                    <TableHead>Correo</TableHead>
                     <TableHead>Dirección</TableHead>
                     <TableHead>Cédula</TableHead>
                     <TableHead>Fecha de Creación</TableHead>
@@ -180,6 +181,7 @@ function Clientes() {
                         {client.name}
                       </TableCell>
                       <TableCell>{client.phone}</TableCell>
+                      <TableCell>{client.email || "-"}</TableCell>
                       <TableCell>{client.address}</TableCell>
                       <TableCell>{client.cedula || "-"}</TableCell>
                       <TableCell>{formatDate(client.createdAt)}</TableCell>

@@ -32,6 +32,7 @@ function ClientModal({
     name: "",
     phone: "",
     address: "",
+    email: null,
     cedula: null,
   });
 
@@ -52,6 +53,7 @@ function ClientModal({
         name: clientData.name,
         phone: clientData.phone,
         address: clientData.address,
+        email: clientData.email,
         cedula: clientData.cedula,
       });
     } catch (error) {
@@ -133,6 +135,27 @@ function ClientModal({
                 minLength={1}
                 maxLength={500}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Correo Electrónico</Label>
+              <Input
+                type="email"
+                id="email"
+                value={formData.email || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    email: e.target.value || null,
+                  })
+                }
+                maxLength={255}
+                placeholder="Opcional"
+              />
+              <p className="text-sm text-muted-foreground">
+                Si no agregas correo del cliente no podrá recibir los
+                recordatorios y alertas generadas por la aplicación
+              </p>
             </div>
 
             <div className="space-y-2">
