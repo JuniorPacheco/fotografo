@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "../config/prisma";
 import { PaymentMethod } from "../generated/prisma/enums";
 import { NotFoundError, ValidationError } from "../utils/errors";
+import { sendPaymentInvoice } from "../services/email.service";
 
 // Schemas de validación
 const createPaymentSchema = z.object({
@@ -29,9 +30,24 @@ export async function createPayment(
     const body = createPaymentSchema.parse(req.body);
     const { invoiceId, amount, method, paymentDate, notes } = body;
 
-    // Verificar que el invoice existe
+    // Verificar que el invoice existe con información del cliente y paquete
     const invoice = await prisma.invoice.findUnique({
       where: { id: invoiceId },
+      include: {
+        client: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        package: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
 
     if (!invoice) {
@@ -60,6 +76,37 @@ export async function createPayment(
         },
       },
     });
+
+    // Calcular total pagado después de crear el pago
+    const allPayments = await prisma.payment.findMany({
+      where: { invoiceId },
+      select: { amount: true },
+    });
+
+    const totalPaid = allPayments.reduce((sum, p) => sum + Number(p.amount), 0);
+    const remainingAmount = Number(invoice.totalAmount) - totalPaid;
+
+    // Enviar factura de pago por email si el cliente tiene email
+    if (invoice.client.email) {
+      try {
+        await sendPaymentInvoice(
+          invoice.client.email,
+          invoice.client.name,
+          Number(payment.amount),
+          parsedPaymentDate,
+          payment.method,
+          invoice.client.name,
+          Number(invoice.totalAmount),
+          totalPaid,
+          remainingAmount,
+          invoice.package?.name || null,
+          false // isUpdate = false para creación
+        );
+      } catch (error) {
+        // Log error but don't fail payment creation if email fails
+        console.error("Failed to send payment invoice email:", error);
+      }
+    }
 
     res.status(201).json({
       success: true,
@@ -253,9 +300,28 @@ export async function updatePayment(
     const { id } = req.params;
     const body = updatePaymentSchema.parse(req.body);
 
-    // Verificar que el pago existe
+    // Verificar que el pago existe con información del invoice, cliente y paquete
     const existingPayment = await prisma.payment.findUnique({
       where: { id },
+      include: {
+        invoice: {
+          include: {
+            client: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+            package: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!existingPayment) {
@@ -286,6 +352,46 @@ export async function updatePayment(
         },
       },
     });
+
+    // Calcular total pagado después de actualizar el pago
+    const allPayments = await prisma.payment.findMany({
+      where: { invoiceId: existingPayment.invoiceId },
+      select: { amount: true },
+    });
+
+    const totalPaid = allPayments.reduce((sum, p) => sum + Number(p.amount), 0);
+    const remainingAmount =
+      Number(existingPayment.invoice.totalAmount) - totalPaid;
+
+    // Enviar factura de pago actualizada por email si el cliente tiene email
+    if (existingPayment.invoice.client.email) {
+      try {
+        const finalPaymentDate =
+          updateData.paymentDate || existingPayment.paymentDate;
+        const finalAmount =
+          updateData.amount !== undefined
+            ? updateData.amount
+            : Number(existingPayment.amount);
+        const finalMethod = updateData.method || existingPayment.method;
+
+        await sendPaymentInvoice(
+          existingPayment.invoice.client.email,
+          existingPayment.invoice.client.name,
+          finalAmount,
+          finalPaymentDate,
+          finalMethod,
+          existingPayment.invoice.client.name,
+          Number(existingPayment.invoice.totalAmount),
+          totalPaid,
+          remainingAmount,
+          existingPayment.invoice.package?.name || null,
+          true // isUpdate = true para actualización
+        );
+      } catch (error) {
+        // Log error but don't fail payment update if email fails
+        console.error("Failed to send payment invoice update email:", error);
+      }
+    }
 
     res.status(200).json({
       success: true,
