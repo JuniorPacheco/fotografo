@@ -1,0 +1,164 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum InvoiceStatus {
+  PENDING // Pendiente de iniciar
+  IN_PROGRESS // En progreso (sesiones activas)
+  COMPLETED // Completado (todas las sesiones y pagos)
+  CANCELLED // Cancelado
+
+  @@map("invoice_status")
+}
+
+enum SessionStatus {
+  SCHEDULED // Programada
+  COMPLETED // Completada (fotos tomadas)
+  CANCELLED // Cancelada
+
+  @@map("session_status")
+}
+
+enum PaymentMethod {
+  CASH // Efectivo
+  TRANSFER // Transferencia
+  CARD // Tarjeta
+  OTHER // Otro
+
+  @@map("payment_method")
+}
+
+enum UserRole {
+  OWNER // Dueño del negocio - Acceso completo
+  ADMIN // Administrador - Acceso completo (similar al dueño)
+  PHOTOGRAPHER // Fotógrafo - Puede gestionar sesiones y fotos
+  ASSISTANT // Asistente - Permisos limitados para ver y editar información básica
+  VIEWER // Solo lectura - Solo puede ver información, no editar
+
+  @@map("user_role")
+}
+
+// ============================================
+// MODELS
+// ============================================
+
+// Usuario del sistema (dueño/fotógrafo/empleados)
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String // Hash de la contraseña
+  name      String?
+  role      UserRole @default(OWNER) // Rol del usuario
+  isActive  Boolean  @default(true) // Si el usuario está activo
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([role])
+  @@index([isActive])
+  @@map("users")
+}
+
+// Cliente del negocio
+model Client {
+  id        String    @id @default(uuid())
+  name      String
+  phone     String
+  address   String
+  cedula    String? // Opcional
+  deletedAt DateTime? // Soft delete
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  invoices Invoice[]
+
+  @@index([deletedAt])
+  @@map("clients")
+}
+
+// Factura/Contrato de fotografía
+model Invoice {
+  id                String        @id @default(uuid())
+  clientId          String
+  totalAmount       Decimal       @db.Decimal(10, 2) // Total a pagar
+  status            InvoiceStatus @default(PENDING)
+  maxNumberSessions Int           @default(1) // Número máximo de sesiones permitidas
+  photosFolderPath  String? // Ruta directa a la carpeta de fotos en el PC
+  notes             String? // Notas adicionales
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  client   Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  sessions Session[]
+  payments Payment[]
+
+  @@index([clientId])
+  @@index([status])
+  @@map("invoices")
+}
+
+// Sesión de fotografía
+model Session {
+  id             String        @id @default(uuid())
+  invoiceId      String
+  sessionNumber  Int // Número de sesión (1, 2, 3, etc.)
+  scheduledAt    DateTime? // Fecha y hora programada para la sesión
+  status         SessionStatus @default(SCHEDULED)
+  selectedPhotos String[] // Array de URLs o paths de las fotos elegidas por el cliente
+  notes          String? // Notas sobre la sesión
+  googleEventId  String? // ID del evento en Google Calendar
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@unique([invoiceId, sessionNumber]) // No puede haber dos sesiones #1 para la misma factura
+  @@index([invoiceId])
+  @@index([scheduledAt])
+  @@map("sessions")
+}
+
+// Pagos realizados por el cliente
+model Payment {
+  id          String        @id @default(uuid())
+  invoiceId   String
+  amount      Decimal       @db.Decimal(10, 2) // Monto del pago
+  method      PaymentMethod @default(CASH)
+  paymentDate DateTime      @default(now())
+  notes       String? // Notas sobre el pago
+  createdAt   DateTime      @default(now())
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([paymentDate])
+  @@map("payments")
+}
+
+// Tokens de Google OAuth2 para integración con Google Calendar
+model GoogleToken {
+  id           String   @id @default(uuid())
+  accessToken  String // Token de acceso
+  refreshToken String // Token de refresco
+  scope        String // Scopes otorgados
+  expiryDate   DateTime // Fecha de expiración del access_token
+  calendarId   String? // ID del calendario exclusivo "Reservas Fotógrafo"
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("google_tokens")
+}
