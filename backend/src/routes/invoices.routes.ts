@@ -16,7 +16,13 @@ const createInvoiceSchema = z.object({
   photosFolderPath: z.string().max(500).optional(),
   notes: z.string().max(1000).optional(),
   status: z
-    .enum(["PENDING", "IN_PROGRESS", "COMPLETED", "CANCELLED"])
+    .enum([
+      "PENDING",
+      "IN_PROGRESS",
+      "COMPLETED_PENDING_PHOTOS",
+      "COMPLETED_PHOTOS_READY",
+      "CANCELLED",
+    ])
     .optional(),
 });
 
@@ -27,7 +33,13 @@ const updateInvoiceSchema = z.object({
   photosFolderPath: z.string().max(500).optional().nullable(),
   notes: z.string().max(1000).optional().nullable(),
   status: z
-    .enum(["PENDING", "IN_PROGRESS", "COMPLETED", "CANCELLED"])
+    .enum([
+      "PENDING",
+      "IN_PROGRESS",
+      "COMPLETED_PENDING_PHOTOS",
+      "COMPLETED_PHOTOS_READY",
+      "CANCELLED",
+    ])
     .optional(),
 });
 
@@ -74,7 +86,7 @@ const updateInvoiceSchema = z.object({
  *                 example: "Sesión de boda"
  *               status:
  *                 type: string
- *                 enum: [PENDING, IN_PROGRESS, COMPLETED, CANCELLED]
+ *                 enum: [PENDING, IN_PROGRESS, COMPLETED_PENDING_PHOTOS, COMPLETED_PHOTOS_READY, CANCELLED]
  *                 default: PENDING
  *     responses:
  *       201:
@@ -344,7 +356,7 @@ router.get(
  *                 example: "Sesión de boda actualizada"
  *               status:
  *                 type: string
- *                 enum: [PENDING, IN_PROGRESS, COMPLETED, CANCELLED]
+ *                 enum: [PENDING, IN_PROGRESS, COMPLETED_PENDING_PHOTOS, COMPLETED_PHOTOS_READY, CANCELLED]
  *     responses:
  *       200:
  *         description: Invoice updated successfully

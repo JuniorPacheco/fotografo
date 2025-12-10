@@ -152,7 +152,8 @@ function Facturas() {
     const labels: Record<Invoice["status"], string> = {
       PENDING: "Pendiente",
       IN_PROGRESS: "En Progreso",
-      COMPLETED: "Completado",
+      COMPLETED_PENDING_PHOTOS: "Completado - Pendiente Fotos",
+      COMPLETED_PHOTOS_READY: "Completado - Fotos Listas",
       CANCELLED: "Cancelado",
     };
     return labels[status];
@@ -167,7 +168,8 @@ function Facturas() {
     > = {
       PENDING: "secondary",
       IN_PROGRESS: "default",
-      COMPLETED: "default",
+      COMPLETED_PENDING_PHOTOS: "default",
+      COMPLETED_PHOTOS_READY: "default",
       CANCELLED: "destructive",
     };
     return variants[status];
@@ -186,10 +188,10 @@ function Facturas() {
               <Printer className="h-4 w-4 mr-2" />
               Imprimir Ventas
             </Button>
-          <Button onClick={() => setIsCreateModalOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Crear Factura
-          </Button>
+            <Button onClick={() => setIsCreateModalOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Crear Factura
+            </Button>
           </div>
         </div>
 

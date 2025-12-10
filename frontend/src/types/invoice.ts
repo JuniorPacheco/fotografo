@@ -5,7 +5,12 @@ export interface Invoice {
   totalAmount: number;
   paidAmount: number;
   remainingAmount: number;
-  status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+  status:
+    | "PENDING"
+    | "IN_PROGRESS"
+    | "COMPLETED_PENDING_PHOTOS"
+    | "COMPLETED_PHOTOS_READY"
+    | "CANCELLED";
   maxNumberSessions: number;
   photosFolderPath: string | null;
   notes: string | null;
@@ -35,7 +40,12 @@ export interface CreateInvoiceRequest {
   maxNumberSessions?: number;
   photosFolderPath?: string;
   notes?: string;
-  status?: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+  status?:
+    | "PENDING"
+    | "IN_PROGRESS"
+    | "COMPLETED_PENDING_PHOTOS"
+    | "COMPLETED_PHOTOS_READY"
+    | "CANCELLED";
 }
 
 export interface UpdateInvoiceRequest {
@@ -45,7 +55,12 @@ export interface UpdateInvoiceRequest {
   maxNumberSessions?: number;
   photosFolderPath?: string | null;
   notes?: string | null;
-  status?: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+  status?:
+    | "PENDING"
+    | "IN_PROGRESS"
+    | "COMPLETED_PENDING_PHOTOS"
+    | "COMPLETED_PHOTOS_READY"
+    | "CANCELLED";
 }
 
 export interface InvoicesResponse {

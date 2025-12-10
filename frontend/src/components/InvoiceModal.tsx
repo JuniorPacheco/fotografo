@@ -257,7 +257,12 @@ function InvoiceModal({
                 <SelectContent>
                   <SelectItem value="PENDING">Pendiente</SelectItem>
                   <SelectItem value="IN_PROGRESS">En Progreso</SelectItem>
-                  <SelectItem value="COMPLETED">Completado</SelectItem>
+                  <SelectItem value="COMPLETED_PENDING_PHOTOS">
+                    Completado - Pendiente Fotos
+                  </SelectItem>
+                  <SelectItem value="COMPLETED_PHOTOS_READY">
+                    Completado - Fotos Listas
+                  </SelectItem>
                   <SelectItem value="CANCELLED">Cancelado</SelectItem>
                 </SelectContent>
               </Select>

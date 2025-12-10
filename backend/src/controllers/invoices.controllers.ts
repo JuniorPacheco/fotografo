@@ -12,7 +12,13 @@ const createInvoiceSchema = z.object({
   photosFolderPath: z.string().max(500).optional(),
   notes: z.string().max(1000).optional(),
   status: z
-    .enum(["PENDING", "IN_PROGRESS", "COMPLETED", "CANCELLED"])
+    .enum([
+      "PENDING",
+      "IN_PROGRESS",
+      "COMPLETED_PENDING_PHOTOS",
+      "COMPLETED_PHOTOS_READY",
+      "CANCELLED",
+    ])
     .optional(),
 });
 
@@ -24,7 +30,13 @@ const updateInvoiceSchema = z.object({
   photosFolderPath: z.string().max(500).optional().nullable(),
   notes: z.string().max(1000).optional().nullable(),
   status: z
-    .enum(["PENDING", "IN_PROGRESS", "COMPLETED", "CANCELLED"])
+    .enum([
+      "PENDING",
+      "IN_PROGRESS",
+      "COMPLETED_PENDING_PHOTOS",
+      "COMPLETED_PHOTOS_READY",
+      "CANCELLED",
+    ])
     .optional(),
 });
 

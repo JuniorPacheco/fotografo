@@ -20,7 +20,8 @@ datasource db {
 enum InvoiceStatus {
   PENDING // Pendiente de iniciar
   IN_PROGRESS // En progreso (sesiones activas)
-  COMPLETED // Completado (todas las sesiones y pagos)
+  COMPLETED_PENDING_PHOTOS // Completado pero pendiente fotos físicas
+  COMPLETED_PHOTOS_READY // Completado con fotos listas para recoger
   CANCELLED // Cancelado
 
   @@map("invoice_status")
