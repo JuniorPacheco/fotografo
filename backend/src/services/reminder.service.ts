@@ -146,9 +146,9 @@ export async function createPhotosReadyReminders(
     const reminderDate10Months = calculatePhotosReady10MonthsDate();
 
     // Crear mensajes sutiles y profesionales
-    const reminder3MonthsDescription = `${clientName}, recordatorio amable de Cabal Studios: Sus fotografías están listas y esperando por usted. Le invitamos cordialmente a pasar por nuestro estudio para recogerlas cuando le sea conveniente.`;
+    const reminder3MonthsDescription = `${clientName}, esperamos que se encuentre muy bien. Queremos contarle que sus fotografías ya están listas y lo esperan en Cabal Studios. Recuerde que podemos almacenarlas hasta por un máximo de 10 meses, así que puede pasar a recogerlas cuando le quede cómodo. Estaremos encantados de atenderle.`;
 
-    const reminder10MonthsDescription = `${clientName}, notificación de Cabal Studios: Hemos alcanzado el plazo máximo de almacenamiento de sus fotografías. Procederemos a omitir el almacenamiento de las mismas. Agradecemos su comprensión.`;
+    const reminder10MonthsDescription = `${clientName}, le saludamos desde Cabal Studios. Queremos informarle que hemos llegado al tiempo máximo de almacenamiento de sus fotografías, por lo que pronto dejaremos de conservarlas. Agradecemos mucho su comprensión y quedamos atentos si necesita algo adicional.`;
 
     // Crear el recordatorio de 3 meses
     await prisma.reminder.create({
