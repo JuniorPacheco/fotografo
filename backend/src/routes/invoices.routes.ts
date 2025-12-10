@@ -21,6 +21,7 @@ const createInvoiceSchema = z.object({
       "IN_PROGRESS",
       "COMPLETED_PENDING_PHOTOS",
       "COMPLETED_PHOTOS_READY",
+      "COMPLETED_AND_CLAIMED",
       "CANCELLED",
     ])
     .optional(),
@@ -38,6 +39,7 @@ const updateInvoiceSchema = z.object({
       "IN_PROGRESS",
       "COMPLETED_PENDING_PHOTOS",
       "COMPLETED_PHOTOS_READY",
+      "COMPLETED_AND_CLAIMED",
       "CANCELLED",
     ])
     .optional(),
@@ -86,7 +88,7 @@ const updateInvoiceSchema = z.object({
  *                 example: "Sesión de boda"
  *               status:
  *                 type: string
- *                 enum: [PENDING, IN_PROGRESS, COMPLETED_PENDING_PHOTOS, COMPLETED_PHOTOS_READY, CANCELLED]
+ *                 enum: [PENDING, IN_PROGRESS, COMPLETED_PENDING_PHOTOS, COMPLETED_PHOTOS_READY, COMPLETED_AND_CLAIMED, CANCELLED]
  *                 default: PENDING
  *     responses:
  *       201:
@@ -356,7 +358,7 @@ router.get(
  *                 example: "Sesión de boda actualizada"
  *               status:
  *                 type: string
- *                 enum: [PENDING, IN_PROGRESS, COMPLETED_PENDING_PHOTOS, COMPLETED_PHOTOS_READY, CANCELLED]
+ *                 enum: [PENDING, IN_PROGRESS, COMPLETED_PENDING_PHOTOS, COMPLETED_PHOTOS_READY, COMPLETED_AND_CLAIMED, CANCELLED]
  *     responses:
  *       200:
  *         description: Invoice updated successfully
