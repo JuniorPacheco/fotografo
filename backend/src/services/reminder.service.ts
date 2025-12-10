@@ -45,23 +45,20 @@ function calculatePhotosReady10MonthsDate(): Date {
 }
 
 /**
- * Elimina recordatorios anteriores de sesiones completadas para un cliente
+ * Elimina recordatorios anteriores de sesiones completadas para una sesión específica
  * que aún no han sido enviados
  */
-async function deletePendingSessionReminders(
-  clientName: string
-): Promise<void> {
+async function deletePendingSessionReminders(sessionId: string): Promise<void> {
   try {
     await prisma.reminder.deleteMany({
       where: {
-        clientName,
-        description: SESSION_COMPLETED_REMINDER_DESCRIPTION,
-        isSent: false, // Solo eliminar los que no han sido enviados
+        sessionId,
+        type: "SESSION_COMPLETED",
       },
     });
   } catch (error) {
     console.error(
-      `[Reminder Service] Error al eliminar recordatorios anteriores para ${clientName}:`,
+      `[Reminder Service] Error al eliminar recordatorios anteriores para sessionId ${sessionId}:`,
       error
     );
     // No lanzar error, solo loguear
@@ -71,14 +68,16 @@ async function deletePendingSessionReminders(
 /**
  * Crea un recordatorio para una sesión completada
  * @param clientName - Nombre del cliente
+ * @param sessionId - ID de la sesión relacionada
  * @returns El recordatorio creado
  */
 export async function createSessionCompletedReminder(
-  clientName: string
+  clientName: string,
+  sessionId: string
 ): Promise<void> {
   try {
-    // Eliminar recordatorios anteriores pendientes para este cliente
-    await deletePendingSessionReminders(clientName);
+    // Eliminar recordatorios anteriores pendientes para esta sesión específica
+    await deletePendingSessionReminders(sessionId);
 
     // Calcular la fecha del recordatorio (15 días después)
     const reminderDate = calculateReminderDate();
@@ -90,12 +89,13 @@ export async function createSessionCompletedReminder(
         clientName,
         description: SESSION_COMPLETED_REMINDER_DESCRIPTION,
         type: "SESSION_COMPLETED",
+        sessionId,
         isSent: false,
       },
     });
   } catch (error) {
     console.error(
-      `[Reminder Service] Error al crear recordatorio de sesión completada para ${clientName}:`,
+      `[Reminder Service] Error al crear recordatorio de sesión completada para ${clientName} (sessionId: ${sessionId}):`,
       error
     );
     // No lanzar error para no interrumpir el flujo de creación/actualización de sesión
@@ -116,7 +116,6 @@ async function deletePendingPhotosReadyReminders(
         type: {
           in: ["PHOTOS_READY_3_MONTHS", "PHOTOS_READY_10_MONTHS"],
         },
-        isSent: false, // Solo eliminar los que no han sido enviados
       },
     });
   } catch (error) {

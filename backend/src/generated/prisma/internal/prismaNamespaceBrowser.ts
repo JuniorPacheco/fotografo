@@ -184,6 +184,7 @@ export const ReminderScalarFieldEnum = {
   description: 'description',
   type: 'type',
   invoiceId: 'invoiceId',
+  sessionId: 'sessionId',
   sentAt: 'sentAt',
   isSent: 'isSent',
   createdAt: 'createdAt',

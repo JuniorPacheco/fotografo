@@ -253,6 +253,7 @@ export type SessionWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   invoice?: Prisma.XOR<Prisma.InvoiceScalarRelationFilter, Prisma.InvoiceWhereInput>
+  reminders?: Prisma.ReminderListRelationFilter
 }
 
 export type SessionOrderByWithRelationInput = {
@@ -267,6 +268,7 @@ export type SessionOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   invoice?: Prisma.InvoiceOrderByWithRelationInput
+  reminders?: Prisma.ReminderOrderByRelationAggregateInput
 }
 
 export type SessionWhereUniqueInput = Prisma.AtLeast<{
@@ -285,6 +287,7 @@ export type SessionWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   invoice?: Prisma.XOR<Prisma.InvoiceScalarRelationFilter, Prisma.InvoiceWhereInput>
+  reminders?: Prisma.ReminderListRelationFilter
 }, "id" | "invoiceId_sessionNumber">
 
 export type SessionOrderByWithAggregationInput = {
@@ -332,6 +335,7 @@ export type SessionCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   invoice: Prisma.InvoiceCreateNestedOneWithoutSessionsInput
+  reminders?: Prisma.ReminderCreateNestedManyWithoutSessionInput
 }
 
 export type SessionUncheckedCreateInput = {
@@ -345,6 +349,7 @@ export type SessionUncheckedCreateInput = {
   googleEventId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  reminders?: Prisma.ReminderUncheckedCreateNestedManyWithoutSessionInput
 }
 
 export type SessionUpdateInput = {
@@ -358,6 +363,7 @@ export type SessionUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invoice?: Prisma.InvoiceUpdateOneRequiredWithoutSessionsNestedInput
+  reminders?: Prisma.ReminderUpdateManyWithoutSessionNestedInput
 }
 
 export type SessionUncheckedUpdateInput = {
@@ -371,6 +377,7 @@ export type SessionUncheckedUpdateInput = {
   googleEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reminders?: Prisma.ReminderUncheckedUpdateManyWithoutSessionNestedInput
 }
 
 export type SessionCreateManyInput = {
@@ -479,6 +486,11 @@ export type SessionSumOrderByAggregateInput = {
   sessionNumber?: Prisma.SortOrder
 }
 
+export type SessionNullableScalarRelationFilter = {
+  is?: Prisma.SessionWhereInput | null
+  isNot?: Prisma.SessionWhereInput | null
+}
+
 export type SessionCreateNestedManyWithoutInvoiceInput = {
   create?: Prisma.XOR<Prisma.SessionCreateWithoutInvoiceInput, Prisma.SessionUncheckedCreateWithoutInvoiceInput> | Prisma.SessionCreateWithoutInvoiceInput[] | Prisma.SessionUncheckedCreateWithoutInvoiceInput[]
   connectOrCreate?: Prisma.SessionCreateOrConnectWithoutInvoiceInput | Prisma.SessionCreateOrConnectWithoutInvoiceInput[]
@@ -534,6 +546,22 @@ export type SessionUpdateselectedPhotosInput = {
   push?: string | string[]
 }
 
+export type SessionCreateNestedOneWithoutRemindersInput = {
+  create?: Prisma.XOR<Prisma.SessionCreateWithoutRemindersInput, Prisma.SessionUncheckedCreateWithoutRemindersInput>
+  connectOrCreate?: Prisma.SessionCreateOrConnectWithoutRemindersInput
+  connect?: Prisma.SessionWhereUniqueInput
+}
+
+export type SessionUpdateOneWithoutRemindersNestedInput = {
+  create?: Prisma.XOR<Prisma.SessionCreateWithoutRemindersInput, Prisma.SessionUncheckedCreateWithoutRemindersInput>
+  connectOrCreate?: Prisma.SessionCreateOrConnectWithoutRemindersInput
+  upsert?: Prisma.SessionUpsertWithoutRemindersInput
+  disconnect?: Prisma.SessionWhereInput | boolean
+  delete?: Prisma.SessionWhereInput | boolean
+  connect?: Prisma.SessionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SessionUpdateToOneWithWhereWithoutRemindersInput, Prisma.SessionUpdateWithoutRemindersInput>, Prisma.SessionUncheckedUpdateWithoutRemindersInput>
+}
+
 export type SessionCreateWithoutInvoiceInput = {
   id?: string
   sessionNumber: number
@@ -544,6 +572,7 @@ export type SessionCreateWithoutInvoiceInput = {
   googleEventId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  reminders?: Prisma.ReminderCreateNestedManyWithoutSessionInput
 }
 
 export type SessionUncheckedCreateWithoutInvoiceInput = {
@@ -556,6 +585,7 @@ export type SessionUncheckedCreateWithoutInvoiceInput = {
   googleEventId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  reminders?: Prisma.ReminderUncheckedCreateNestedManyWithoutSessionInput
 }
 
 export type SessionCreateOrConnectWithoutInvoiceInput = {
@@ -600,6 +630,74 @@ export type SessionScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Session"> | Date | string
 }
 
+export type SessionCreateWithoutRemindersInput = {
+  id?: string
+  sessionNumber: number
+  scheduledAt?: Date | string | null
+  status?: $Enums.SessionStatus
+  selectedPhotos?: Prisma.SessionCreateselectedPhotosInput | string[]
+  notes?: string | null
+  googleEventId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  invoice: Prisma.InvoiceCreateNestedOneWithoutSessionsInput
+}
+
+export type SessionUncheckedCreateWithoutRemindersInput = {
+  id?: string
+  invoiceId: string
+  sessionNumber: number
+  scheduledAt?: Date | string | null
+  status?: $Enums.SessionStatus
+  selectedPhotos?: Prisma.SessionCreateselectedPhotosInput | string[]
+  notes?: string | null
+  googleEventId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type SessionCreateOrConnectWithoutRemindersInput = {
+  where: Prisma.SessionWhereUniqueInput
+  create: Prisma.XOR<Prisma.SessionCreateWithoutRemindersInput, Prisma.SessionUncheckedCreateWithoutRemindersInput>
+}
+
+export type SessionUpsertWithoutRemindersInput = {
+  update: Prisma.XOR<Prisma.SessionUpdateWithoutRemindersInput, Prisma.SessionUncheckedUpdateWithoutRemindersInput>
+  create: Prisma.XOR<Prisma.SessionCreateWithoutRemindersInput, Prisma.SessionUncheckedCreateWithoutRemindersInput>
+  where?: Prisma.SessionWhereInput
+}
+
+export type SessionUpdateToOneWithWhereWithoutRemindersInput = {
+  where?: Prisma.SessionWhereInput
+  data: Prisma.XOR<Prisma.SessionUpdateWithoutRemindersInput, Prisma.SessionUncheckedUpdateWithoutRemindersInput>
+}
+
+export type SessionUpdateWithoutRemindersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  sessionNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.EnumSessionStatusFieldUpdateOperationsInput | $Enums.SessionStatus
+  selectedPhotos?: Prisma.SessionUpdateselectedPhotosInput | string[]
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invoice?: Prisma.InvoiceUpdateOneRequiredWithoutSessionsNestedInput
+}
+
+export type SessionUncheckedUpdateWithoutRemindersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  invoiceId?: Prisma.StringFieldUpdateOperationsInput | string
+  sessionNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.EnumSessionStatusFieldUpdateOperationsInput | $Enums.SessionStatus
+  selectedPhotos?: Prisma.SessionUpdateselectedPhotosInput | string[]
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type SessionCreateManyInvoiceInput = {
   id?: string
   sessionNumber: number
@@ -622,6 +720,7 @@ export type SessionUpdateWithoutInvoiceInput = {
   googleEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reminders?: Prisma.ReminderUpdateManyWithoutSessionNestedInput
 }
 
 export type SessionUncheckedUpdateWithoutInvoiceInput = {
@@ -634,6 +733,7 @@ export type SessionUncheckedUpdateWithoutInvoiceInput = {
   googleEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reminders?: Prisma.ReminderUncheckedUpdateManyWithoutSessionNestedInput
 }
 
 export type SessionUncheckedUpdateManyWithoutInvoiceInput = {
@@ -649,6 +749,35 @@ export type SessionUncheckedUpdateManyWithoutInvoiceInput = {
 }
 
 
+/**
+ * Count Type SessionCountOutputType
+ */
+
+export type SessionCountOutputType = {
+  reminders: number
+}
+
+export type SessionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  reminders?: boolean | SessionCountOutputTypeCountRemindersArgs
+}
+
+/**
+ * SessionCountOutputType without action
+ */
+export type SessionCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SessionCountOutputType
+   */
+  select?: Prisma.SessionCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * SessionCountOutputType without action
+ */
+export type SessionCountOutputTypeCountRemindersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReminderWhereInput
+}
+
 
 export type SessionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -662,6 +791,8 @@ export type SessionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   createdAt?: boolean
   updatedAt?: boolean
   invoice?: boolean | Prisma.InvoiceDefaultArgs<ExtArgs>
+  reminders?: boolean | Prisma.Session$remindersArgs<ExtArgs>
+  _count?: boolean | Prisma.SessionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["session"]>
 
 export type SessionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -708,6 +839,8 @@ export type SessionSelectScalar = {
 export type SessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceId" | "sessionNumber" | "scheduledAt" | "status" | "selectedPhotos" | "notes" | "googleEventId" | "createdAt" | "updatedAt", ExtArgs["result"]["session"]>
 export type SessionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   invoice?: boolean | Prisma.InvoiceDefaultArgs<ExtArgs>
+  reminders?: boolean | Prisma.Session$remindersArgs<ExtArgs>
+  _count?: boolean | Prisma.SessionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type SessionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   invoice?: boolean | Prisma.InvoiceDefaultArgs<ExtArgs>
@@ -720,6 +853,7 @@ export type $SessionPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   name: "Session"
   objects: {
     invoice: Prisma.$InvoicePayload<ExtArgs>
+    reminders: Prisma.$ReminderPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1127,6 +1261,7 @@ readonly fields: SessionFieldRefs;
 export interface Prisma__SessionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   invoice<T extends Prisma.InvoiceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InvoiceDefaultArgs<ExtArgs>>): Prisma.Prisma__InvoiceClient<runtime.Types.Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  reminders<T extends Prisma.Session$remindersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Session$remindersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReminderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1559,6 +1694,30 @@ export type SessionDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Sessions to delete.
    */
   limit?: number
+}
+
+/**
+ * Session.reminders
+ */
+export type Session$remindersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Reminder
+   */
+  select?: Prisma.ReminderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Reminder
+   */
+  omit?: Prisma.ReminderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReminderInclude<ExtArgs> | null
+  where?: Prisma.ReminderWhereInput
+  orderBy?: Prisma.ReminderOrderByWithRelationInput | Prisma.ReminderOrderByWithRelationInput[]
+  cursor?: Prisma.ReminderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReminderScalarFieldEnum | Prisma.ReminderScalarFieldEnum[]
 }
 
 /**

@@ -153,7 +153,8 @@ model Session {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
-  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoice   Invoice    @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  reminders Reminder[]
 
   @@unique([invoiceId, sessionNumber]) // No puede haber dos sesiones #1 para la misma factura
   @@index([invoiceId])
@@ -200,16 +201,19 @@ model Reminder {
   description String // Descripción del recordatorio
   type        ReminderType // Tipo de recordatorio
   invoiceId   String? // ID de la factura relacionada (opcional)
+  sessionId   String? // ID de la sesión relacionada (opcional)
   sentAt      DateTime? // Fecha en que se envió el recordatorio
   isSent      Boolean      @default(false) // Indica si el recordatorio ya fue enviado
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
   invoice Invoice? @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  session Session? @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   @@index([date])
   @@index([isSent])
   @@index([type])
   @@index([invoiceId])
+  @@index([sessionId])
   @@map("reminders")
 }

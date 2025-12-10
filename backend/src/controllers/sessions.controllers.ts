@@ -230,7 +230,7 @@ export async function createSession(
     // Crear recordatorio de sesión completada si el estado es COMPLETED
     if (finalStatus === "COMPLETED") {
       try {
-        await createSessionCompletedReminder(invoice.client.name);
+        await createSessionCompletedReminder(invoice.client.name, session.id);
       } catch (error) {
         // Log error but don't fail session creation if reminder creation fails
         console.error("Failed to create session completed reminder:", error);
@@ -539,7 +539,8 @@ export async function updateSession(
     if (isNowCompleted) {
       try {
         await createSessionCompletedReminder(
-          existingSession.invoice.client.name
+          session.invoice.client.name,
+          session.id
         );
       } catch (error) {
         // Log error but don't fail session update if reminder creation fails
