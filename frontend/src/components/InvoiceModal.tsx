@@ -5,6 +5,7 @@ import type { Package } from "@/types/package";
 import { invoiceService } from "@/services/invoice.service";
 import { clientService } from "@/services/client.service";
 import { packageService } from "@/services/package.service";
+import { paymentService } from "@/services/payment.service";
 import {
   Dialog,
   DialogContent,
@@ -47,6 +48,12 @@ function InvoiceModal({
   const [pendingStatusChange, setPendingStatusChange] = useState<
     Invoice["status"] | null
   >(null);
+  const [paymentInfo, setPaymentInfo] = useState<{
+    totalAmount: number;
+    totalPaid: number;
+    remainingAmount: number;
+  } | null>(null);
+  const [isLoadingPayments, setIsLoadingPayments] = useState(false);
   const [formData, setFormData] = useState<UpdateInvoiceRequest>({
     clientId: "",
     packageId: null,
@@ -119,28 +126,51 @@ function InvoiceModal({
       await invoiceService.update(invoiceId, formData);
       onUpdate();
       onClose();
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error updating invoice:", error);
-      alert("Error al actualizar la factura");
+      if (
+        error instanceof Error &&
+        error.message.includes("no ha pagado completamente")
+      ) {
+        alert(error.message);
+      } else {
+        alert("Error al actualizar la factura");
+      }
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleConfirmStatusChange = () => {
-    if (pendingStatusChange) {
+    if (pendingStatusChange && paymentInfo) {
+      // Verificar que el total pagado sea igual al total de la factura
+      if (paymentInfo.remainingAmount > 0) {
+        alert(
+          `No se puede cambiar el estado porque aún falta por pagar ${new Intl.NumberFormat(
+            "es-CO",
+            {
+              style: "currency",
+              currency: "COP",
+            }
+          ).format(paymentInfo.remainingAmount)}`
+        );
+        return;
+      }
+
       setFormData({
         ...formData,
         status: pendingStatusChange,
       });
       setShowConfirmDialog(false);
       setPendingStatusChange(null);
+      setPaymentInfo(null);
     }
   };
 
   const handleCancelStatusChange = () => {
     setShowConfirmDialog(false);
     setPendingStatusChange(null);
+    setPaymentInfo(null);
     // No necesitamos revertir porque el formData.status nunca cambió
   };
 
@@ -273,15 +303,26 @@ function InvoiceModal({
                 <Label htmlFor="status">Estado</Label>
                 <Select
                   value={formData.status}
-                  onValueChange={(value) => {
+                  onValueChange={async (value) => {
                     const newStatus = value as Invoice["status"];
-                    // Si se intenta cambiar a COMPLETED_AND_CLAIMED, mostrar confirmación
+                    // Si se intenta cambiar a COMPLETED_AND_CLAIMED, cargar pagos y mostrar confirmación
                     if (
                       newStatus === "COMPLETED_AND_CLAIMED" &&
                       invoice?.status !== "COMPLETED_AND_CLAIMED"
                     ) {
-                      setPendingStatusChange(newStatus);
-                      setShowConfirmDialog(true);
+                      setIsLoadingPayments(true);
+                      try {
+                        const paymentsResponse =
+                          await paymentService.getByInvoice(invoiceId!);
+                        setPaymentInfo(paymentsResponse.data.invoice);
+                        setPendingStatusChange(newStatus);
+                        setShowConfirmDialog(true);
+                      } catch (error) {
+                        console.error("Error loading payments:", error);
+                        alert("Error al cargar información de pagos");
+                      } finally {
+                        setIsLoadingPayments(false);
+                      }
                     } else {
                       setFormData({
                         ...formData,
@@ -354,19 +395,94 @@ function InvoiceModal({
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <p className="text-sm text-muted-foreground mb-4">
-              Al cambiar a este estado, se eliminarán{" "}
-              <strong>todos los recordatorios</strong> relacionados con esta
-              factura y sus sesiones, ya que el cliente ha completado y
-              reclamado todo el trabajo.
-            </p>
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-3">
-              <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                <strong>Advertencia:</strong> Esta acción no se puede deshacer.
-                Todos los recordatorios pendientes serán eliminados
-                permanentemente.
+            {isLoadingPayments ? (
+              <p className="text-center py-4">
+                Cargando información de pagos...
               </p>
-            </div>
+            ) : paymentInfo ? (
+              <>
+                {/* Información de pagos */}
+                <div className="mb-4 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">
+                      Total de la Factura:
+                    </span>
+                    <span className="text-sm font-semibold">
+                      {new Intl.NumberFormat("es-CO", {
+                        style: "currency",
+                        currency: "COP",
+                      }).format(paymentInfo.totalAmount)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Total Pagado:</span>
+                    <span className="text-sm font-semibold">
+                      {new Intl.NumberFormat("es-CO", {
+                        style: "currency",
+                        currency: "COP",
+                      }).format(paymentInfo.totalPaid)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center border-t pt-2">
+                    <span className="text-sm font-medium">Pendiente:</span>
+                    <span
+                      className={`text-sm font-semibold ${
+                        paymentInfo.remainingAmount > 0
+                          ? "text-destructive"
+                          : "text-green-600"
+                      }`}
+                    >
+                      {new Intl.NumberFormat("es-CO", {
+                        style: "currency",
+                        currency: "COP",
+                      }).format(paymentInfo.remainingAmount)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Mensaje de error si falta dinero */}
+                {paymentInfo.remainingAmount > 0 ? (
+                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-3 mb-4">
+                    <p className="text-sm text-red-800 dark:text-red-200">
+                      <strong>Error:</strong> No se puede cambiar el estado a
+                      "Completado y Reclamado" porque el cliente aún no ha
+                      pagado completamente. Falta por pagar{" "}
+                      {new Intl.NumberFormat("es-CO", {
+                        style: "currency",
+                        currency: "COP",
+                      }).format(paymentInfo.remainingAmount)}
+                      .
+                    </p>
+                  </div>
+                ) : (
+                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md p-3 mb-4">
+                    <p className="text-sm text-green-800 dark:text-green-200">
+                      <strong>✓ Pago Completo:</strong> El cliente ha pagado el
+                      total de la factura. Puede proceder con el cambio de
+                      estado.
+                    </p>
+                  </div>
+                )}
+
+                <p className="text-sm text-muted-foreground mb-4">
+                  Al cambiar a este estado, se eliminarán{" "}
+                  <strong>todos los recordatorios</strong> relacionados con esta
+                  factura y sus sesiones, ya que el cliente ha completado y
+                  reclamado todo el trabajo.
+                </p>
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-3">
+                  <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                    <strong>Advertencia:</strong> Esta acción no se puede
+                    deshacer. Todos los recordatorios pendientes serán
+                    eliminados permanentemente.
+                  </p>
+                </div>
+              </>
+            ) : (
+              <p className="text-center py-4 text-destructive">
+                Error al cargar información de pagos
+              </p>
+            )}
           </div>
           <DialogFooter>
             <Button
@@ -379,7 +495,12 @@ function InvoiceModal({
             <Button
               type="button"
               onClick={handleConfirmStatusChange}
-              className="bg-destructive hover:bg-destructive/90"
+              disabled={paymentInfo ? paymentInfo.remainingAmount > 0 : true}
+              className={
+                paymentInfo && paymentInfo.remainingAmount === 0
+                  ? "bg-destructive hover:bg-destructive/90"
+                  : ""
+              }
             >
               Confirmar y Continuar
             </Button>

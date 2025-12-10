@@ -367,6 +367,31 @@ export async function updateInvoice(
       newStatus === "COMPLETED_AND_CLAIMED" &&
       existingInvoice.status !== "COMPLETED_AND_CLAIMED";
 
+    // Validar que el total pagado sea igual al total de la factura antes de cambiar a COMPLETED_AND_CLAIMED
+    if (isChangingToCompletedAndClaimed) {
+      const payments = await prisma.payment.findMany({
+        where: { invoiceId: id },
+        select: { amount: true },
+      });
+
+      const totalPaid = payments.reduce(
+        (sum, payment) => sum + Number(payment.amount),
+        0
+      );
+      const totalAmount = Number(existingInvoice.totalAmount);
+      const remainingAmount = totalAmount - totalPaid;
+
+      if (totalPaid < totalAmount) {
+        throw new ValidationError(
+          `No se puede cambiar el estado a "Completado y Reclamado" porque el cliente aún no ha pagado completamente. Total de la factura: ${totalAmount.toFixed(
+            2
+          )}, Total pagado: ${totalPaid.toFixed(
+            2
+          )}, Pendiente: ${remainingAmount.toFixed(2)}`
+        );
+      }
+    }
+
     const invoice = await prisma.invoice.update({
       where: { id },
       data: body as {
