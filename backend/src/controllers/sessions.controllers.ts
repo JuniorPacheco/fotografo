@@ -533,10 +533,12 @@ export async function updateSession(
 
     // Manejar recordatorios de sesión completada
     const newStatus = body.status ?? existingSession.status;
+    const wasCompleted = existingSession.status === "COMPLETED";
     const isNowCompleted = newStatus === "COMPLETED";
+    const changedToCompleted = !wasCompleted && isNowCompleted;
 
-    // Si la sesión cambió a COMPLETED (ya sea por primera vez o después de cambiar de estado)
-    if (isNowCompleted) {
+    // Solo crear recordatorio si la sesión cambió de un estado diferente a COMPLETED
+    if (changedToCompleted) {
       try {
         await createSessionCompletedReminder(
           session.invoice.client.name,
