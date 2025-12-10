@@ -7,7 +7,7 @@ cmds = ["pnpm install --frozen-lockfile"]
 [phases.build]
 cmds = [
   "pnpm prisma generate",
-  "pnpm build"
+  "pnpm run build"
 ]
 
 [start]
