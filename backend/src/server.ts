@@ -31,9 +31,10 @@ async function startServer(): Promise<void> {
       "✅ CRON job configurado: Recordatorios diarios a las 8:00 AM (Colombia)"
     );
 
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
-      console.log(`📝 Environment: ${env.NODE_ENV}`);
+    const port = Number.parseInt(PORT, 10) || 3000;
+    app.listen(port, () => {
+      console.log(`🚀 Server running on port ${port}`);
+      console.log(`📝 Environment: ${env.NODE_ENV || "development"}`);
     });
   } catch (error) {
     console.error("❌ Failed to start server:", error);

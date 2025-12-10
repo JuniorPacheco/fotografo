@@ -3,7 +3,7 @@ dotenv.config();
 
 export const ENVIRONMENTS = {
   DEVELOPMENT: process.env.NODE_ENV,
-  PORT: process.env.PORT,
+  PORT: process.env.PORT || "3000",
   ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS,
   DATABASE_URL: process.env.DATABASE_URL,
   JWT_SECRET: process.env.JWT_SECRET,
