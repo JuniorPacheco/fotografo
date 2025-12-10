@@ -23,7 +23,8 @@ export type InvoiceStatus = (typeof InvoiceStatus)[keyof typeof InvoiceStatus]
 
 export const SessionStatus = {
   SCHEDULED: 'SCHEDULED',
-  COMPLETED: 'COMPLETED',
+  COMPLETED_UNCLAIMED: 'COMPLETED_UNCLAIMED',
+  COMPLETED_AND_CLAIMED: 'COMPLETED_AND_CLAIMED',
   CANCELLED: 'CANCELLED'
 } as const
 

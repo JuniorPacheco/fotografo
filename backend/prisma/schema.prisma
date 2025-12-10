@@ -30,7 +30,8 @@ enum InvoiceStatus {
 
 enum SessionStatus {
   SCHEDULED // Programada
-  COMPLETED // Completada (fotos tomadas)
+  COMPLETED_UNCLAIMED // Completada sin reclamar (fotos tomadas pero no reclamadas)
+  COMPLETED_AND_CLAIMED // Completada y reclamada (fotos tomadas y reclamadas por el cliente)
   CANCELLED // Cancelada
 
   @@map("session_status")

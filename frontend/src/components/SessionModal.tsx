@@ -239,7 +239,12 @@ function SessionModal({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="SCHEDULED">Programada</SelectItem>
-                  <SelectItem value="COMPLETED">Completada</SelectItem>
+                  <SelectItem value="COMPLETED_UNCLAIMED">
+                    Completada sin Reclamar
+                  </SelectItem>
+                  <SelectItem value="COMPLETED_AND_CLAIMED">
+                    Completada y Reclamada
+                  </SelectItem>
                   <SelectItem value="CANCELLED">Cancelada</SelectItem>
                 </SelectContent>
               </Select>

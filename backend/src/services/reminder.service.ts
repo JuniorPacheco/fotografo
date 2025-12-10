@@ -66,6 +66,31 @@ async function deletePendingSessionReminders(sessionId: string): Promise<void> {
 }
 
 /**
+ * Elimina todos los recordatorios asociados a una sesión específica
+ * Se usa cuando una sesión cambia a COMPLETED_AND_CLAIMED
+ * @param sessionId - ID de la sesión relacionada
+ */
+export async function deleteSessionReminders(sessionId: string): Promise<void> {
+  try {
+    const deletedCount = await prisma.reminder.deleteMany({
+      where: {
+        sessionId,
+      },
+    });
+
+    console.log(
+      `[Reminder Service] Eliminados ${deletedCount.count} recordatorio(s) para sessionId ${sessionId}`
+    );
+  } catch (error) {
+    console.error(
+      `[Reminder Service] Error al eliminar recordatorios para sessionId ${sessionId}:`,
+      error
+    );
+    // No lanzar error para no interrumpir el flujo de actualización de sesión
+  }
+}
+
+/**
  * Crea un recordatorio para una sesión completada
  * @param clientName - Nombre del cliente
  * @param sessionId - ID de la sesión relacionada

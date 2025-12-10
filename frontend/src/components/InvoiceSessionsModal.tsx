@@ -119,7 +119,8 @@ function InvoiceSessionsModal({
   const getStatusLabel = (status: Session["status"]): string => {
     const labels: Record<Session["status"], string> = {
       SCHEDULED: "Programada",
-      COMPLETED: "Completada",
+      COMPLETED_UNCLAIMED: "Completada sin Reclamar",
+      COMPLETED_AND_CLAIMED: "Completada y Reclamada",
       CANCELLED: "Cancelada",
     };
     return labels[status];
@@ -133,7 +134,8 @@ function InvoiceSessionsModal({
       "default" | "secondary" | "destructive" | "outline"
     > = {
       SCHEDULED: "default",
-      COMPLETED: "secondary",
+      COMPLETED_UNCLAIMED: "secondary",
+      COMPLETED_AND_CLAIMED: "outline",
       CANCELLED: "destructive",
     };
     return variants[status];

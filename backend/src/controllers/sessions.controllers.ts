@@ -5,7 +5,10 @@ import { SessionStatus } from "../generated/prisma/enums";
 import { NotFoundError, ValidationError } from "../utils/errors";
 import { createEvent, updateEvent, deleteEvent } from "../utils/googleCalendar";
 import { sendDigitalPhotosPolicyReminder } from "../services/email.service";
-import { createSessionCompletedReminder } from "../services/reminder.service";
+import {
+  createSessionCompletedReminder,
+  deleteSessionReminders,
+} from "../services/reminder.service";
 
 // Schemas de validación
 const createSessionSchema = z.object({
@@ -15,7 +18,8 @@ const createSessionSchema = z.object({
   status: z
     .enum([
       SessionStatus.SCHEDULED,
-      SessionStatus.COMPLETED,
+      SessionStatus.COMPLETED_UNCLAIMED,
+      SessionStatus.COMPLETED_AND_CLAIMED,
       SessionStatus.CANCELLED,
     ])
     .optional(),
@@ -29,7 +33,8 @@ const updateSessionSchema = z.object({
   status: z
     .enum([
       SessionStatus.SCHEDULED,
-      SessionStatus.COMPLETED,
+      SessionStatus.COMPLETED_UNCLAIMED,
+      SessionStatus.COMPLETED_AND_CLAIMED,
       SessionStatus.CANCELLED,
     ])
     .optional(),
@@ -227,13 +232,23 @@ export async function createSession(
       }
     }
 
-    // Crear recordatorio de sesión completada si el estado es COMPLETED
-    if (finalStatus === "COMPLETED") {
+    // Crear recordatorio de sesión completada si el estado es COMPLETED_UNCLAIMED
+    if (finalStatus === "COMPLETED_UNCLAIMED") {
       try {
         await createSessionCompletedReminder(invoice.client.name, session.id);
       } catch (error) {
         // Log error but don't fail session creation if reminder creation fails
         console.error("Failed to create session completed reminder:", error);
+      }
+    }
+
+    // Eliminar recordatorios si el estado es COMPLETED_AND_CLAIMED
+    if (finalStatus === "COMPLETED_AND_CLAIMED") {
+      try {
+        await deleteSessionReminders(session.id);
+      } catch (error) {
+        // Log error but don't fail session creation if reminder deletion fails
+        console.error("Failed to delete session reminders:", error);
       }
     }
 
@@ -533,12 +548,20 @@ export async function updateSession(
 
     // Manejar recordatorios de sesión completada
     const newStatus = body.status ?? existingSession.status;
-    const wasCompleted = existingSession.status === "COMPLETED";
-    const isNowCompleted = newStatus === "COMPLETED";
-    const changedToCompleted = !wasCompleted && isNowCompleted;
+    const wasCompletedUnclaimed =
+      existingSession.status === "COMPLETED_UNCLAIMED";
+    const isNowCompletedUnclaimed = newStatus === "COMPLETED_UNCLAIMED";
+    const changedToCompletedUnclaimed =
+      !wasCompletedUnclaimed && isNowCompletedUnclaimed;
 
-    // Solo crear recordatorio si la sesión cambió de un estado diferente a COMPLETED
-    if (changedToCompleted) {
+    const wasCompletedAndClaimed =
+      existingSession.status === "COMPLETED_AND_CLAIMED";
+    const isNowCompletedAndClaimed = newStatus === "COMPLETED_AND_CLAIMED";
+    const changedToCompletedAndClaimed =
+      !wasCompletedAndClaimed && isNowCompletedAndClaimed;
+
+    // Crear recordatorio si la sesión cambió a COMPLETED_UNCLAIMED
+    if (changedToCompletedUnclaimed) {
       try {
         await createSessionCompletedReminder(
           session.invoice.client.name,
@@ -547,6 +570,22 @@ export async function updateSession(
       } catch (error) {
         // Log error but don't fail session update if reminder creation fails
         console.error("Failed to create session completed reminder:", error);
+      }
+    }
+
+    // Eliminar recordatorios si la sesión cambió a COMPLETED_AND_CLAIMED
+    if (changedToCompletedAndClaimed) {
+      try {
+        await deleteSessionReminders(session.id);
+        console.log(
+          `[Session Controller] Eliminados todos los recordatorios para session ${id} (${session.invoice.client.name}) al cambiar a COMPLETED_AND_CLAIMED`
+        );
+      } catch (error) {
+        // Log error but don't fail session update if reminder deletion fails
+        console.error(
+          "Failed to delete reminders when changing to COMPLETED_AND_CLAIMED:",
+          error
+        );
       }
     }
 

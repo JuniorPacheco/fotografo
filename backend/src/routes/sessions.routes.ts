@@ -13,7 +13,14 @@ const createSessionSchema = z.object({
   invoiceId: z.string().uuid("Invalid invoice ID"),
   sessionNumber: z.number().int().positive().optional(),
   scheduledAt: z.string().datetime().optional(),
-  status: z.enum(["SCHEDULED", "COMPLETED", "CANCELLED"]).optional(),
+  status: z
+    .enum([
+      "SCHEDULED",
+      "COMPLETED_UNCLAIMED",
+      "COMPLETED_AND_CLAIMED",
+      "CANCELLED",
+    ])
+    .optional(),
   selectedPhotos: z.array(z.string()).optional(),
   notes: z.string().max(1000).optional(),
 });
@@ -21,7 +28,14 @@ const createSessionSchema = z.object({
 const updateSessionSchema = z.object({
   sessionNumber: z.number().int().positive().optional(),
   scheduledAt: z.string().datetime().optional().nullable(),
-  status: z.enum(["SCHEDULED", "COMPLETED", "CANCELLED"]).optional(),
+  status: z
+    .enum([
+      "SCHEDULED",
+      "COMPLETED_UNCLAIMED",
+      "COMPLETED_AND_CLAIMED",
+      "CANCELLED",
+    ])
+    .optional(),
   selectedPhotos: z.array(z.string()).optional(),
   notes: z.string().max(1000).optional().nullable(),
 });
@@ -59,7 +73,7 @@ const updateSessionSchema = z.object({
  *                 example: "2024-11-20T10:00:00Z"
  *               status:
  *                 type: string
- *                 enum: [SCHEDULED, COMPLETED, CANCELLED]
+ *                 enum: [SCHEDULED, COMPLETED_UNCLAIMED, COMPLETED_AND_CLAIMED, CANCELLED]
  *                 default: SCHEDULED
  *               selectedPhotos:
  *                 type: array
@@ -263,8 +277,8 @@ router.get(
  *                 example: "2024-11-20T10:00:00Z"
  *               status:
  *                 type: string
- *                 enum: [SCHEDULED, COMPLETED, CANCELLED]
- *                 example: "COMPLETED"
+ *                 enum: [SCHEDULED, COMPLETED_UNCLAIMED, COMPLETED_AND_CLAIMED, CANCELLED]
+ *                 example: "COMPLETED_UNCLAIMED"
  *               selectedPhotos:
  *                 type: array
  *                 items:

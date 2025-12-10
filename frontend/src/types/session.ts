@@ -1,4 +1,8 @@
-export type SessionStatus = "SCHEDULED" | "COMPLETED" | "CANCELLED";
+export type SessionStatus =
+  | "SCHEDULED"
+  | "COMPLETED_UNCLAIMED"
+  | "COMPLETED_AND_CLAIMED"
+  | "CANCELLED";
 
 export interface Session {
   id: string;
