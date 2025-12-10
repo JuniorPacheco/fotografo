@@ -23,8 +23,8 @@ COPY prisma.config.ts ./
 # Copy TypeScript config files
 COPY tsconfig.json tsconfig.build.json ./
 
-# Generate Prisma Client
-RUN pnpm prisma:generate
+# Generate Prisma Client (DATABASE_URL dummy required by prisma.config.ts but not used for client generation)
+RUN DATABASE_URL="postgresql://postgres:aitdBzbSYIZQUcsDlayAPFldtLzdSVCb@postgres.railway.internal:5432/railway" pnpm prisma:generate
 
 # Copy source code (excluding node_modules via .dockerignore)
 COPY src ./src
