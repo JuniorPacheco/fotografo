@@ -37,6 +37,8 @@ function CreatePaymentModal({
 }: CreatePaymentModalProps) {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [remainingAmount, setRemainingAmount] = useState<number | null>(null);
+  const [amountError, setAmountError] = useState<string>("");
   const [formData, setFormData] = useState<CreatePaymentRequest>({
     invoiceId: invoiceId || "",
     amount: 0,
@@ -49,11 +51,23 @@ function CreatePaymentModal({
     if (isOpen) {
       if (!invoiceId) {
         loadInvoices();
+        setRemainingAmount(null);
       } else {
         setFormData((prev) => ({ ...prev, invoiceId }));
+        loadRemainingAmount(invoiceId);
       }
     }
   }, [isOpen, invoiceId]);
+
+  const loadRemainingAmount = async (invId: string) => {
+    try {
+      const response = await paymentService.getByInvoice(invId);
+      setRemainingAmount(response.data.invoice.remainingAmount);
+    } catch (error) {
+      console.error("Error loading remaining amount:", error);
+      setRemainingAmount(null);
+    }
+  };
 
   const loadInvoices = async () => {
     try {
@@ -66,7 +80,23 @@ function CreatePaymentModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validar monto antes de enviar
+    if (remainingAmount !== null && formData.amount > remainingAmount) {
+      setAmountError(
+        `El monto no puede exceder el saldo restante de ${new Intl.NumberFormat(
+          "es-CO",
+          {
+            style: "currency",
+            currency: "COP",
+          }
+        ).format(remainingAmount)}`
+      );
+      return;
+    }
+
     setIsLoading(true);
+    setAmountError("");
     try {
       // Convertir paymentDate a formato ISO si existe
       const submitData: CreatePaymentRequest = {
@@ -77,17 +107,26 @@ function CreatePaymentModal({
       };
       await paymentService.create(submitData);
       setFormData({
-        invoiceId: "",
+        invoiceId: invoiceId || "",
         amount: 0,
         method: "CASH",
         paymentDate: "",
         notes: "",
       });
+      setRemainingAmount(null);
+      setAmountError("");
       onCreated();
       onClose();
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error creating payment:", error);
-      alert("Error al crear el pago");
+      if (
+        error instanceof Error &&
+        error.message.includes("no puede exceder")
+      ) {
+        setAmountError(error.message);
+      } else {
+        alert("Error al crear el pago");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -109,9 +148,11 @@ function CreatePaymentModal({
               <Label htmlFor="create-invoiceId">Factura *</Label>
               <Select
                 value={formData.invoiceId}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, invoiceId: value })
-                }
+                onValueChange={(value) => {
+                  setFormData({ ...formData, invoiceId: value, amount: 0 });
+                  setAmountError("");
+                  loadRemainingAmount(value);
+                }}
                 required
               >
                 <SelectTrigger>
@@ -139,15 +180,50 @@ function CreatePaymentModal({
               id="create-amount"
               step="0.01"
               min="0.01"
+              max={remainingAmount !== null ? remainingAmount : undefined}
               value={formData.amount || ""}
-              onChange={(e) =>
+              onChange={(e) => {
+                const value = parseFloat(e.target.value) || 0;
                 setFormData({
                   ...formData,
-                  amount: parseFloat(e.target.value) || 0,
-                })
-              }
+                  amount: value,
+                });
+                // Validar en tiempo real
+                if (remainingAmount !== null && value > remainingAmount) {
+                  setAmountError(
+                    `El monto no puede exceder el saldo restante de ${new Intl.NumberFormat(
+                      "es-CO",
+                      {
+                        style: "currency",
+                        currency: "COP",
+                      }
+                    ).format(remainingAmount)}`
+                  );
+                } else {
+                  setAmountError("");
+                }
+              }}
               required
+              className={amountError ? "border-destructive" : ""}
             />
+            {remainingAmount !== null && (
+              <p className="text-xs text-muted-foreground">
+                Saldo restante:{" "}
+                <span
+                  className={
+                    remainingAmount > 0 ? "text-destructive" : "text-green-600"
+                  }
+                >
+                  {new Intl.NumberFormat("es-CO", {
+                    style: "currency",
+                    currency: "COP",
+                  }).format(remainingAmount)}
+                </span>
+              </p>
+            )}
+            {amountError && (
+              <p className="text-xs text-destructive">{amountError}</p>
+            )}
           </div>
 
           <div className="space-y-2">

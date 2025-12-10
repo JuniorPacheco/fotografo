@@ -36,6 +36,8 @@ function PaymentModal({
   const [payment, setPayment] = useState<Payment | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [remainingAmount, setRemainingAmount] = useState<number | null>(null);
+  const [amountError, setAmountError] = useState<string>("");
   const [formData, setFormData] = useState<UpdatePaymentRequest>({
     amount: 0,
     method: "CASH",
@@ -64,6 +66,18 @@ function PaymentModal({
           : null,
         notes: paymentData.notes,
       });
+
+      // Cargar saldo restante de la factura
+      if (paymentData.invoice?.id) {
+        const invoiceResponse = await paymentService.getByInvoice(
+          paymentData.invoice.id
+        );
+        // El saldo restante incluye el monto actual del pago, así que necesitamos sumarlo
+        const currentPaymentAmount = Number(paymentData.amount);
+        const remainingWithCurrent =
+          invoiceResponse.data.invoice.remainingAmount + currentPaymentAmount;
+        setRemainingAmount(remainingWithCurrent);
+      }
     } catch (error) {
       console.error("Error loading payment:", error);
     } finally {
@@ -75,7 +89,26 @@ function PaymentModal({
     e.preventDefault();
     if (!paymentId) return;
 
+    // Validar monto antes de enviar
+    if (
+      remainingAmount !== null &&
+      formData.amount !== undefined &&
+      formData.amount > remainingAmount
+    ) {
+      setAmountError(
+        `El monto no puede exceder el saldo restante de ${new Intl.NumberFormat(
+          "es-CO",
+          {
+            style: "currency",
+            currency: "COP",
+          }
+        ).format(remainingAmount)}`
+      );
+      return;
+    }
+
     setIsSaving(true);
+    setAmountError("");
     try {
       // Convertir paymentDate a formato ISO si existe
       const submitData: UpdatePaymentRequest = {
@@ -85,11 +118,19 @@ function PaymentModal({
           : null,
       };
       await paymentService.update(paymentId, submitData);
+      setAmountError("");
       onUpdate();
       onClose();
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error updating payment:", error);
-      alert("Error al actualizar el pago");
+      if (
+        error instanceof Error &&
+        error.message.includes("no puede exceder")
+      ) {
+        setAmountError(error.message);
+      } else {
+        alert("Error al actualizar el pago");
+      }
     } finally {
       setIsSaving(false);
     }
@@ -123,15 +164,52 @@ function PaymentModal({
                 id="amount"
                 step="0.01"
                 min="0.01"
+                max={remainingAmount !== null ? remainingAmount : undefined}
                 value={formData.amount}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value) || 0;
                   setFormData({
                     ...formData,
-                    amount: parseFloat(e.target.value) || 0,
-                  })
-                }
+                    amount: value,
+                  });
+                  // Validar en tiempo real
+                  if (remainingAmount !== null && value > remainingAmount) {
+                    setAmountError(
+                      `El monto no puede exceder el saldo restante de ${new Intl.NumberFormat(
+                        "es-CO",
+                        {
+                          style: "currency",
+                          currency: "COP",
+                        }
+                      ).format(remainingAmount)}`
+                    );
+                  } else {
+                    setAmountError("");
+                  }
+                }}
                 required
+                className={amountError ? "border-destructive" : ""}
               />
+              {remainingAmount !== null && (
+                <p className="text-xs text-muted-foreground">
+                  Saldo restante disponible:{" "}
+                  <span
+                    className={
+                      remainingAmount > 0
+                        ? "text-destructive"
+                        : "text-green-600"
+                    }
+                  >
+                    {new Intl.NumberFormat("es-CO", {
+                      style: "currency",
+                      currency: "COP",
+                    }).format(remainingAmount)}
+                  </span>
+                </p>
+              )}
+              {amountError && (
+                <p className="text-xs text-destructive">{amountError}</p>
+              )}
             </div>
 
             <div className="space-y-2">

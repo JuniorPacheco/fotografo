@@ -54,6 +54,27 @@ export async function createPayment(
       throw new NotFoundError("Invoice not found");
     }
 
+    // Calcular saldo restante antes de crear el pago
+    const existingPayments = await prisma.payment.findMany({
+      where: { invoiceId },
+      select: { amount: true },
+    });
+
+    const totalPaid = existingPayments.reduce(
+      (sum, p) => sum + Number(p.amount),
+      0
+    );
+    const remainingAmount = Number(invoice.totalAmount) - totalPaid;
+
+    // Validar que el monto del pago no exceda el saldo restante
+    if (amount > remainingAmount) {
+      throw new ValidationError(
+        `El monto del pago (${amount.toFixed(
+          2
+        )}) no puede exceder el saldo restante (${remainingAmount.toFixed(2)})`
+      );
+    }
+
     // Parsear paymentDate si existe
     const parsedPaymentDate = paymentDate ? new Date(paymentDate) : new Date();
 
@@ -77,14 +98,9 @@ export async function createPayment(
       },
     });
 
-    // Calcular total pagado después de crear el pago
-    const allPayments = await prisma.payment.findMany({
-      where: { invoiceId },
-      select: { amount: true },
-    });
-
-    const totalPaid = allPayments.reduce((sum, p) => sum + Number(p.amount), 0);
-    const remainingAmount = Number(invoice.totalAmount) - totalPaid;
+    // Calcular total pagado después de crear el pago (sumar el nuevo pago al total anterior)
+    const finalTotalPaid = totalPaid + amount;
+    const finalRemainingAmount = Number(invoice.totalAmount) - finalTotalPaid;
 
     // Enviar factura de pago por email si el cliente tiene email
     if (invoice.client.email) {
@@ -97,8 +113,8 @@ export async function createPayment(
           payment.method,
           invoice.client.name,
           Number(invoice.totalAmount),
-          totalPaid,
-          remainingAmount,
+          finalTotalPaid,
+          finalRemainingAmount,
           invoice.package?.name || null,
           false // isUpdate = false para creación
         );
@@ -332,6 +348,39 @@ export async function updatePayment(
 
     if (!existingPayment) {
       throw new NotFoundError("Payment not found");
+    }
+
+    // Validar monto si se está actualizando
+    if (body.amount !== undefined) {
+      // Calcular saldo restante considerando el monto actual del pago
+      const allPayments = await prisma.payment.findMany({
+        where: { invoiceId: existingPayment.invoiceId },
+        select: { amount: true },
+      });
+
+      // Calcular total pagado excluyendo el pago actual
+      const totalPaidExcludingCurrent = allPayments
+        .filter((p) => p.amount !== existingPayment.amount)
+        .reduce((sum, p) => sum + Number(p.amount), 0);
+
+      // Calcular nuevo total pagado con el monto actualizado
+      const newTotalPaid = totalPaidExcludingCurrent + body.amount;
+      const remainingAmount =
+        Number(existingPayment.invoice.totalAmount) - newTotalPaid;
+
+      // Validar que el nuevo monto no exceda el saldo restante
+      if (remainingAmount < 0) {
+        const maxAllowedAmount =
+          Number(existingPayment.invoice.totalAmount) -
+          totalPaidExcludingCurrent;
+        throw new ValidationError(
+          `El monto del pago (${body.amount.toFixed(
+            2
+          )}) no puede exceder el saldo restante. El monto máximo permitido es ${maxAllowedAmount.toFixed(
+            2
+          )}`
+        );
+      }
     }
 
     // Parsear paymentDate si existe
