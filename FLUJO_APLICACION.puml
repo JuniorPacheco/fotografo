@@ -1,0 +1,401 @@
+@startuml Flujo de Aplicación - Sistema de Gestión Fotográfica
+
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontSize 12
+skinparam defaultFontName Arial
+
+title Flujo de Aplicación - Sistema de Gestión Fotográfica\n(Perspectiva Frontend)
+
+start
+
+:Usuario accede a la aplicación;
+
+if (¿Está autenticado?) then (no)
+  :Mostrar página de Login;
+  :Usuario ingresa email y contraseña;
+  :Validar credenciales;
+  if (¿Credenciales válidas?) then (no)
+    :Mostrar error;
+    stop
+  else (sí)
+    :Guardar token JWT;
+    :Redirigir a Dashboard;
+  endif
+else (sí)
+  :Redirigir a Dashboard;
+endif
+
+:Mostrar Layout con navegación lateral;
+
+partition "Dashboard" {
+  :Mostrar bienvenida al usuario;
+  if (¿Es OWNER?) then (sí)
+    :Mostrar estado de Google Calendar;
+    if (¿Google Calendar conectado?) then (no)
+      :Botón "Conectar Google Calendar";
+      :Redirigir a Google OAuth;
+      :Procesar callback;
+      if (¿Conexión exitosa?) then (sí)
+        :Mostrar estado conectado;
+        :Botón "Desconectar" disponible;
+      else (no)
+        :Mostrar error;
+      endif
+    else (sí)
+      :Mostrar calendario conectado;
+      :Botón "Desconectar" disponible;
+    endif
+  else (no)
+    :No mostrar opciones de Google Calendar;
+  endif
+  :Mostrar resumen general (en desarrollo);
+}
+
+partition "Gestión de Clientes" {
+  :Usuario navega a /clientes;
+  :Cargar lista de clientes con paginación;
+  
+  :Mostrar filtros:
+  - Buscar por nombre
+  - Ordenar por fecha;
+  
+  :Mostrar tabla con:
+  - Nombre, Teléfono, Correo
+  - Dirección, Cédula, Fecha creación
+  - Acciones (Ver, Eliminar);
+  
+  if (¿Usuario hace clic en "Crear Cliente"?) then (sí)
+    :Abrir modal "Crear Cliente";
+    :Usuario completa formulario:
+    - Nombre (requerido)
+    - Teléfono (requerido)
+    - Correo (opcional)
+    - Dirección (requerido)
+    - Cédula (opcional);
+    :Validar datos;
+    if (¿Datos válidos?) then (sí)
+      :Crear cliente;
+      :Cerrar modal;
+      :Recargar lista;
+    else (no)
+      :Mostrar errores de validación;
+    endif
+  endif
+  
+  if (¿Usuario hace clic en "Ver"?) then (sí)
+    :Abrir modal "Detalles del Cliente";
+    :Mostrar información completa;
+    :Permitir editar datos;
+    if (¿Usuario guarda cambios?) then (sí)
+      :Actualizar cliente;
+      :Cerrar modal;
+      :Recargar lista;
+    endif
+  endif
+  
+  if (¿Usuario hace clic en "Eliminar"?) then (sí)
+    :Confirmar eliminación;
+    if (¿Usuario confirma?) then (sí)
+      :Eliminar cliente;
+      :Recargar lista;
+    endif
+  endif
+}
+
+partition "Gestión de Paquetes" {
+  :Usuario navega a /paquetes;
+  :Cargar lista de paquetes con paginación;
+  
+  :Mostrar filtros:
+  - Buscar por nombre
+  - Ordenar por fecha;
+  
+  :Mostrar tabla con:
+  - Nombre
+  - Precio Sugerido
+  - Fecha de Creación
+  - Acciones (Ver, Eliminar);
+  
+  if (¿Usuario hace clic en "Crear Paquete"?) then (sí)
+    :Abrir modal "Crear Paquete";
+    :Usuario completa formulario:
+    - Nombre (requerido)
+    - Precio Sugerido (requerido);
+    :Validar datos;
+    if (¿Datos válidos?) then (sí)
+      :Crear paquete;
+      :Cerrar modal;
+      :Recargar lista;
+    else (no)
+      :Mostrar errores de validación;
+    endif
+  endif
+  
+  if (¿Usuario hace clic en "Ver"?) then (sí)
+    :Abrir modal "Detalles del Paquete";
+    :Mostrar información completa;
+    :Permitir editar datos;
+    if (¿Usuario guarda cambios?) then (sí)
+      :Actualizar paquete;
+      :Cerrar modal;
+      :Recargar lista;
+    endif
+  endif
+  
+  if (¿Usuario hace clic en "Eliminar"?) then (sí)
+    :Confirmar eliminación;
+    if (¿Usuario confirma?) then (sí)
+      :Eliminar paquete;
+      :Recargar lista;
+    endif
+  endif
+}
+
+partition "Gestión de Facturas" {
+  :Usuario navega a /facturas;
+  :Cargar lista de facturas con paginación;
+  
+  :Mostrar filtros:
+  - Fecha inicio
+  - Fecha fin
+  - Nombre cliente
+  - Ordenar por fecha;
+  
+  :Mostrar tabla con:
+  - Cliente
+  - Monto Total, Pagado, Pendiente
+  - Estado (Badge)
+  - Sesiones (actual/máximo)
+  - Fecha
+  - Acciones (Ver, Ver Pagos, Ver Sesiones, Eliminar);
+  
+  if (¿Usuario hace clic en "Crear Factura"?) then (sí)
+    :Abrir modal "Crear Factura";
+    :Usuario completa formulario:
+    - Seleccionar Cliente (requerido)
+    - Seleccionar Paquete (opcional)
+    - Monto Total (requerido)
+    - Número máximo de sesiones (requerido)
+    - Ruta carpeta fotos (opcional)
+    - Notas (opcional);
+    :Validar datos;
+    if (¿Datos válidos?) then (sí)
+      :Crear factura;
+      :Cerrar modal;
+      :Recargar lista;
+    else (no)
+      :Mostrar errores de validación;
+    endif
+  endif
+  
+  if (¿Usuario hace clic en "Ver"?) then (sí)
+    :Abrir modal "Detalles de Factura";
+    :Mostrar información completa:
+    - Datos del cliente
+    - Montos y estado
+    - Lista de pagos
+    - Lista de sesiones;
+    :Permitir editar datos;
+    :Permitir cambiar estado;
+    if (¿Usuario guarda cambios?) then (sí)
+      :Actualizar factura;
+      :Cerrar modal;
+      :Recargar lista;
+    endif
+  endif
+  
+  if (¿Usuario hace clic en "Ver Pagos"?) then (sí)
+    :Abrir modal "Pagos de la Factura";
+    :Mostrar lista de pagos asociados;
+    :Mostrar resumen de pagos;
+    :Permitir crear nuevo pago desde aquí;
+  endif
+  
+  if (¿Usuario hace clic en "Ver Sesiones"?) then (sí)
+    :Abrir modal "Sesiones de la Factura";
+    :Mostrar lista de sesiones asociadas;
+    :Mostrar sesiones disponibles/restantes;
+    :Permitir crear nueva sesión desde aquí;
+    :Permitir ver/editar/eliminar sesiones;
+  endif
+  
+  if (¿Usuario hace clic en "Imprimir Ventas"?) then (sí)
+    :Abrir modal "Ventas Diarias";
+    :Usuario selecciona fecha;
+    :Generar reporte de ventas del día;
+    :Mostrar resumen con tickets;
+    :Permitir imprimir;
+  endif
+  
+  if (¿Usuario hace clic en "Eliminar"?) then (sí)
+    :Confirmar eliminación;
+    if (¿Usuario confirma?) then (sí)
+      :Eliminar factura;
+      :Recargar lista;
+    endif
+  endif
+}
+
+partition "Gestión de Pagos" {
+  :Usuario navega a /pagos;
+  :Cargar lista de pagos con paginación;
+  
+  :Mostrar filtros:
+  - Nombre cliente
+  - Ordenar por fecha;
+  
+  :Mostrar tabla con:
+  - Cliente
+  - Monto
+  - Método de pago
+  - Fecha de pago
+  - Notas
+  - Acciones (Ver, Eliminar);
+  
+  if (¿Usuario hace clic en "Crear Pago"?) then (sí)
+    :Abrir modal "Crear Pago";
+    :Usuario completa formulario:
+    - Seleccionar Factura (requerido)
+    - Monto (requerido)
+    - Método de pago (requerido)
+    - Fecha de pago (requerido)
+    - Notas (opcional);
+    :Validar datos;
+    :Validar que el monto no exceda el pendiente;
+    if (¿Datos válidos?) then (sí)
+      :Crear pago;
+      :Actualizar montos de la factura;
+      :Cerrar modal;
+      :Recargar lista;
+    else (no)
+      :Mostrar errores de validación;
+    endif
+  endif
+  
+  if (¿Usuario hace clic en "Ver"?) then (sí)
+    :Abrir modal "Detalles del Pago";
+    :Mostrar información completa;
+    :Permitir editar datos;
+    if (¿Usuario guarda cambios?) then (sí)
+      :Actualizar pago;
+      :Actualizar montos de la factura;
+      :Cerrar modal;
+      :Recargar lista;
+    endif
+  endif
+  
+  if (¿Usuario hace clic en "Eliminar"?) then (sí)
+    :Confirmar eliminación;
+    if (¿Usuario confirma?) then (sí)
+      :Eliminar pago;
+      :Actualizar montos de la factura;
+      :Recargar lista;
+    endif
+  endif
+}
+
+partition "Gestión de Sesiones" {
+  note right
+    Las sesiones se gestionan principalmente
+    desde el modal de facturas, pero también
+    pueden crearse/editarse desde aquí
+  end note
+  
+  :Usuario accede a sesiones desde factura;
+  :Cargar sesiones de la factura;
+  
+  :Mostrar información:
+  - Sesiones actuales vs máximo permitido
+  - Lista de sesiones con número, fecha, estado;
+  
+  if (¿Usuario hace clic en "Crear Sesión"?) then (sí)
+    :Abrir modal "Crear Sesión";
+    :Usuario completa formulario:
+    - Número de sesión (auto-generado)
+    - Fecha y hora programada (opcional)
+    - Notas (opcional);
+    :Validar que no exceda máximo de sesiones;
+    if (¿Datos válidos?) then (sí)
+      :Crear sesión;
+      if (¿Google Calendar conectado?) then (sí)
+        :Crear evento en Google Calendar;
+        :Guardar ID del evento;
+      endif
+      :Cerrar modal;
+      :Recargar lista;
+    else (no)
+      :Mostrar errores de validación;
+    endif
+  endif
+  
+  if (¿Usuario hace clic en "Ver Sesión"?) then (sí)
+    :Abrir modal "Detalles de Sesión";
+    :Mostrar información completa:
+    - Número de sesión
+    - Fecha programada
+    - Estado
+    - Fotos seleccionadas
+    - Notas;
+    :Permitir editar datos;
+    :Permitir cambiar estado;
+    :Permitir agregar fotos seleccionadas;
+    if (¿Usuario guarda cambios?) then (sí)
+      :Actualizar sesión;
+      if (¿Fecha cambió y Google Calendar conectado?) then (sí)
+        :Actualizar evento en Google Calendar;
+      endif
+      :Cerrar modal;
+      :Recargar lista;
+    endif
+  endif
+  
+  if (¿Usuario hace clic en "Eliminar Sesión"?) then (sí)
+    :Confirmar eliminación;
+    if (¿Usuario confirma?) then (sí)
+      if (¿Tiene evento en Google Calendar?) then (sí)
+        :Eliminar evento de Google Calendar;
+      endif
+      :Eliminar sesión;
+      :Recargar lista;
+    endif
+  endif
+}
+
+partition "Recordatorios" {
+  :Usuario navega a /recordatorios;
+  :Cargar lista de recordatorios con paginación;
+  
+  note right
+    Los recordatorios se generan automáticamente
+    por el sistema para sesiones e invoices
+  end note
+  
+  :Mostrar filtros:
+  - Nombre del cliente;
+  
+  :Mostrar tabla con:
+  - Cliente
+  - Fecha del recordatorio
+  - Descripción
+  - Estado de fecha (Pasado/Hoy/Próximo)
+  - Estado de envío (Enviado/Pendiente)
+  - Fecha de envío
+  - Fecha de creación;
+  
+  :Los recordatorios son solo lectura;
+  :Se muestran con badges de estado;
+}
+
+partition "Funcionalidades Generales" {
+  :Usuario puede cambiar tema (claro/oscuro);
+  :Usuario puede cerrar sesión;
+  :Todas las acciones requieren autenticación;
+  :Las rutas están protegidas;
+  :Si el token expira, redirigir a login;
+}
+
+stop
+
+@enduml
+

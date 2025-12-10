@@ -1,0 +1,169 @@
+@startuml Flujo de Proceso de Negocio - Escenario Completo
+
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+title Flujo de Proceso de Negocio Completo\nEscenario: Cliente nuevo contrata paquete de fotografía
+
+start
+
+:Cliente nuevo llega al estudio;
+
+partition "Paso 1: Registrar Cliente" {
+  :Fotógrafo navega a "Clientes";
+  :Hace clic en "Crear Cliente";
+  :Completa formulario:
+  - Nombre
+  - Teléfono
+  - Correo (opcional)
+  - Dirección
+  - Cédula (opcional);
+  :Guarda cliente;
+  :Cliente registrado en el sistema;
+}
+
+partition "Paso 2: Crear Factura/Contrato" {
+  :Fotógrafo navega a "Facturas";
+  :Hace clic en "Crear Factura";
+  :Selecciona el cliente recién creado;
+  :Selecciona paquete (opcional) o define precio manual;
+  :Define monto total del contrato;
+  :Define número máximo de sesiones;
+  :Ingresa ruta de carpeta de fotos (opcional);
+  :Agrega notas adicionales;
+  :Guarda factura;
+  :Factura creada con estado PENDING;
+}
+
+partition "Paso 3: Registrar Pago Inicial" {
+  :Cliente realiza pago inicial;
+  :Fotógrafo navega a "Pagos";
+  :Hace clic en "Crear Pago";
+  :Selecciona la factura creada;
+  :Ingresa monto del pago;
+  :Selecciona método de pago:
+  - Efectivo
+  - Transferencia
+  - Tarjeta
+  - Otro;
+  :Ingresa fecha del pago;
+  :Agrega notas (opcional);
+  :Guarda pago;
+  :Sistema actualiza automáticamente:
+  - Monto pagado de la factura
+  - Monto pendiente de la factura;
+}
+
+partition "Paso 4: Programar Sesión de Fotos" {
+  :Fotógrafo y cliente acuerdan fecha para sesión;
+  :Fotógrafo navega a "Facturas";
+  :Hace clic en "Ver Sesiones" de la factura;
+  :Hace clic en "Crear Sesión";
+  :Ingresa fecha y hora programada;
+  :Agrega notas sobre la sesión (opcional);
+  :Guarda sesión;
+  
+  if (¿Google Calendar está conectado?) then (sí)
+    :Sistema crea evento automáticamente
+    en Google Calendar;
+    :Evento incluye:
+    - Nombre del cliente
+    - Fecha y hora
+    - Notas;
+  else (no)
+    :Sesión creada sin sincronización;
+  endif
+  
+  :Sesión creada con estado SCHEDULED;
+  :Sistema genera recordatorio automático
+  para enviar al cliente;
+}
+
+partition "Paso 5: Realizar Sesión de Fotos" {
+  :Llega el día de la sesión;
+  :Fotógrafo realiza la sesión;
+  :Fotógrafo navega a la sesión;
+  :Cambia estado de sesión a COMPLETED;
+  :Agrega fotos seleccionadas por el cliente (opcional);
+  :Actualiza notas de la sesión;
+  :Guarda cambios;
+}
+
+partition "Paso 6: Registrar Pagos Adicionales" {
+  :Cliente realiza pagos adicionales;
+  :Fotógrafo registra cada pago;
+  :Sistema actualiza montos automáticamente;
+  
+  repeat
+    :Registrar pago;
+    :Actualizar montos;
+  repeat while (¿Queda saldo pendiente?) is (sí)
+  ->no;
+}
+
+partition "Paso 7: Programar Sesiones Adicionales" {
+  if (¿Factura permite más sesiones?) then (sí)
+    repeat
+      :Fotógrafo programa nueva sesión;
+      :Sistema valida que no exceda máximo;
+      :Sesión creada y sincronizada con Google Calendar;
+      :Recordatorio generado automáticamente;
+    repeat while (¿Hay más sesiones por programar?) is (sí)
+    ->no;
+  else (no)
+    :Máximo de sesiones alcanzado;
+  endif
+}
+
+partition "Paso 8: Completar Trabajo" {
+  :Todas las sesiones completadas;
+  :Fotógrafo actualiza estado de factura:
+  - COMPLETED_PENDING_PHOTOS
+  - COMPLETED_PHOTOS_READY
+  - COMPLETED_AND_CLAIMED;
+  :Cliente recibe fotos;
+  :Trabajo completado;
+}
+
+partition "Funcionalidades Adicionales" {
+  :Fotógrafo puede:
+  - Ver resumen de ventas diarias
+  - Imprimir tickets de ventas
+  - Ver todos los recordatorios generados
+  - Filtrar y buscar información
+  - Editar cualquier dato en cualquier momento;
+}
+
+stop
+
+note right
+  **Estados de Factura:**
+  - PENDING: Recién creada
+  - IN_PROGRESS: En proceso
+  - COMPLETED_PENDING_PHOTOS: Completado, fotos pendientes
+  - COMPLETED_PHOTOS_READY: Fotos listas
+  - COMPLETED_AND_CLAIMED: Completado y reclamado
+  - CANCELLED: Cancelado
+end note
+
+note right
+  **Estados de Sesión:**
+  - SCHEDULED: Programada
+  - COMPLETED: Completada
+  - CANCELLED: Cancelada
+end note
+
+note right
+  **Recordatorios Automáticos:**
+  El sistema genera recordatorios
+  automáticamente para:
+  - Sesiones programadas
+  - Facturas pendientes de pago
+  Estos se muestran en la sección
+  "Recordatorios"
+end note
+
+@enduml
+

@@ -1,0 +1,145 @@
+@startuml Diagrama de Funcionalidades - Sistema de Gestión Fotográfica
+
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+skinparam componentStyle rectangle
+
+title Diagrama de Funcionalidades - Sistema de Gestión Fotográfica\nVista desde el Frontend
+
+package "Autenticación" {
+  [Login] as login
+  [Dashboard] as dashboard
+  login --> dashboard : Credenciales válidas
+}
+
+package "Gestión de Clientes" {
+  [Lista de Clientes] as clientList
+  [Crear Cliente] as createClient
+  [Ver/Editar Cliente] as viewClient
+  [Eliminar Cliente] as deleteClient
+  
+  clientList --> createClient
+  clientList --> viewClient
+  clientList --> deleteClient
+}
+
+package "Gestión de Paquetes" {
+  [Lista de Paquetes] as packageList
+  [Crear Paquete] as createPackage
+  [Ver/Editar Paquete] as viewPackage
+  [Eliminar Paquete] as deletePackage
+  
+  packageList --> createPackage
+  packageList --> viewPackage
+  packageList --> deletePackage
+}
+
+package "Gestión de Facturas" {
+  [Lista de Facturas] as invoiceList
+  [Crear Factura] as createInvoice
+  [Ver/Editar Factura] as viewInvoice
+  [Ver Pagos de Factura] as viewInvoicePayments
+  [Ver Sesiones de Factura] as viewInvoiceSessions
+  [Imprimir Ventas Diarias] as printDailySales
+  [Eliminar Factura] as deleteInvoice
+  
+  invoiceList --> createInvoice
+  invoiceList --> viewInvoice
+  invoiceList --> viewInvoicePayments
+  invoiceList --> viewInvoiceSessions
+  invoiceList --> printDailySales
+  invoiceList --> deleteInvoice
+  
+  viewInvoice --> viewInvoicePayments
+  viewInvoice --> viewInvoiceSessions
+}
+
+package "Gestión de Pagos" {
+  [Lista de Pagos] as paymentList
+  [Crear Pago] as createPayment
+  [Ver/Editar Pago] as viewPayment
+  [Eliminar Pago] as deletePayment
+  
+  paymentList --> createPayment
+  paymentList --> viewPayment
+  paymentList --> deletePayment
+}
+
+package "Gestión de Sesiones" {
+  [Lista de Sesiones] as sessionList
+  [Crear Sesión] as createSession
+  [Ver/Editar Sesión] as viewSession
+  [Eliminar Sesión] as deleteSession
+  
+  sessionList --> createSession
+  sessionList --> viewSession
+  sessionList --> deleteSession
+}
+
+package "Recordatorios" {
+  [Lista de Recordatorios] as reminderList
+  note right of reminderList
+    Los recordatorios se generan
+    automáticamente por el sistema
+    para sesiones e invoices
+  end note
+}
+
+package "Integración Google Calendar" {
+  [Conectar Google Calendar] as connectCalendar
+  [Desconectar Google Calendar] as disconnectCalendar
+  [Sincronizar Sesiones] as syncSessions
+  
+  connectCalendar --> syncSessions
+  syncSessions --> disconnectCalendar
+}
+
+' Relaciones entre módulos
+createInvoice --> clientList : Selecciona Cliente
+createInvoice --> packageList : Selecciona Paquete (opcional)
+createPayment --> invoiceList : Selecciona Factura
+createSession --> invoiceList : Selecciona Factura
+viewInvoicePayments --> paymentList : Muestra pagos
+viewInvoiceSessions --> sessionList : Muestra sesiones
+createSession --> syncSessions : Si está conectado
+viewSession --> syncSessions : Actualiza evento
+
+dashboard --> clientList
+dashboard --> invoiceList
+dashboard --> paymentList
+dashboard --> packageList
+dashboard --> reminderList
+dashboard --> connectCalendar
+
+' Flujos principales
+note top of createInvoice
+  Al crear una factura:
+  1. Seleccionar cliente
+  2. Opcionalmente seleccionar paquete
+  3. Definir monto total
+  4. Definir número máximo de sesiones
+  5. La factura queda en estado PENDING
+end note
+
+note bottom of createPayment
+  Al crear un pago:
+  1. Seleccionar factura
+  2. Ingresar monto (validado contra pendiente)
+  3. Seleccionar método de pago
+  4. Se actualizan automáticamente
+     los montos de la factura
+end note
+
+note bottom of createSession
+  Al crear una sesión:
+  1. Seleccionar factura
+  2. El número de sesión se genera automáticamente
+  3. Programar fecha y hora (opcional)
+  4. Si Google Calendar está conectado,
+     se crea evento automáticamente
+end note
+
+@enduml
+

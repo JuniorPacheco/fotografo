@@ -1,0 +1,198 @@
+@startuml Arquitectura Frontend - Sistema de Gestión Fotográfica
+
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontSize 10
+skinparam defaultFontName Arial
+skinparam componentStyle rectangle
+
+title Arquitectura Frontend - Sistema de Gestión Fotográfica
+
+package "Navegación y Rutas" {
+  [App.tsx] as app
+  [ProtectedRoute] as protectedRoute
+  [Layout] as layout
+  
+  app --> protectedRoute
+  protectedRoute --> layout
+}
+
+package "Páginas Principales" {
+  [Login] as loginPage
+  [Dashboard] as dashboardPage
+  [Clientes] as clientesPage
+  [Facturas] as facturasPage
+  [Pagos] as pagosPage
+  [Paquetes] as paquetesPage
+  [Recordatorios] as recordatoriosPage
+  [GoogleCallback] as googleCallbackPage
+  
+  layout --> dashboardPage
+  layout --> clientesPage
+  layout --> facturasPage
+  layout --> pagosPage
+  layout --> paquetesPage
+  layout --> recordatoriosPage
+  app --> loginPage
+  app --> googleCallbackPage
+}
+
+package "Componentes Modales" {
+  [ClientModal] as clientModal
+  [CreateClientModal] as createClientModal
+  [InvoiceModal] as invoiceModal
+  [CreateInvoiceModal] as createInvoiceModal
+  [InvoicePaymentsModal] as invoicePaymentsModal
+  [InvoiceSessionsModal] as invoiceSessionsModal
+  [PaymentModal] as paymentModal
+  [CreatePaymentModal] as createPaymentModal
+  [PackageModal] as packageModal
+  [CreatePackageModal] as createPackageModal
+  [SessionModal] as sessionModal
+  [CreateSessionModal] as createSessionModal
+  [DailySalesModal] as dailySalesModal
+  
+  clientesPage --> clientModal
+  clientesPage --> createClientModal
+  facturasPage --> invoiceModal
+  facturasPage --> createInvoiceModal
+  facturasPage --> invoicePaymentsModal
+  facturasPage --> invoiceSessionsModal
+  facturasPage --> dailySalesModal
+  pagosPage --> paymentModal
+  pagosPage --> createPaymentModal
+  paquetesPage --> packageModal
+  paquetesPage --> createPackageModal
+  invoiceSessionsModal --> sessionModal
+  invoiceSessionsModal --> createSessionModal
+}
+
+package "Servicios API" {
+  [auth.service] as authService
+  [client.service] as clientService
+  [invoice.service] as invoiceService
+  [payment.service] as paymentService
+  [package.service] as packageService
+  [session.service] as sessionService
+  [reminder.service] as reminderService
+  [googleCalendar.service] as googleCalendarService
+  [api.ts] as apiBase
+  
+  authService --> apiBase
+  clientService --> apiBase
+  invoiceService --> apiBase
+  paymentService --> apiBase
+  packageService --> apiBase
+  sessionService --> apiBase
+  reminderService --> apiBase
+  googleCalendarService --> apiBase
+}
+
+package "Hooks Personalizados" {
+  [useAuth] as useAuthHook
+  [useTheme] as useThemeHook
+}
+
+package "Componentes UI" {
+  [Button] as uiButton
+  [Input] as uiInput
+  [Table] as uiTable
+  [Modal] as uiModal
+  [Card] as uiCard
+  [Badge] as uiBadge
+  [Select] as uiSelect
+  [Label] as uiLabel
+}
+
+' Conexiones principales
+loginPage --> authService
+loginPage --> useAuthHook
+dashboardPage --> googleCalendarService
+dashboardPage --> useAuthHook
+dashboardPage --> useThemeHook
+
+clientesPage --> clientService
+clientesPage --> useAuthHook
+clientModal --> clientService
+createClientModal --> clientService
+
+facturasPage --> invoiceService
+facturasPage --> useAuthHook
+invoiceModal --> invoiceService
+createInvoiceModal --> invoiceService
+createInvoiceModal --> clientService
+createInvoiceModal --> packageService
+invoicePaymentsModal --> paymentService
+invoiceSessionsModal --> sessionService
+dailySalesModal --> invoiceService
+
+pagosPage --> paymentService
+pagosPage --> useAuthHook
+paymentModal --> paymentService
+createPaymentModal --> paymentService
+createPaymentModal --> invoiceService
+
+paquetesPage --> packageService
+packageModal --> packageService
+createPackageModal --> packageService
+
+recordatoriosPage --> reminderService
+
+sessionModal --> sessionService
+createSessionModal --> sessionService
+createSessionModal --> googleCalendarService
+
+layout --> useAuthHook
+layout --> useThemeHook
+
+' Conexiones a componentes UI
+clientesPage --> uiButton
+clientesPage --> uiInput
+clientesPage --> uiTable
+clientesPage --> uiSelect
+clientesPage --> uiLabel
+facturasPage --> uiButton
+facturasPage --> uiInput
+facturasPage --> uiTable
+facturasPage --> uiBadge
+pagosPage --> uiButton
+pagosPage --> uiInput
+pagosPage --> uiTable
+paquetesPage --> uiButton
+paquetesPage --> uiInput
+paquetesPage --> uiTable
+recordatoriosPage --> uiTable
+recordatoriosPage --> uiBadge
+
+note right of apiBase
+  **api.ts** maneja:
+  - Configuración de axios
+  - Interceptores de request/response
+  - Manejo de tokens JWT
+  - Manejo de errores globales
+end note
+
+note right of useAuthHook
+  **useAuth** proporciona:
+  - Estado de autenticación
+  - Usuario actual
+  - Funciones login/logout
+  - Persistencia en localStorage
+end note
+
+note right of useThemeHook
+  **useTheme** proporciona:
+  - Tema actual (claro/oscuro)
+  - Función toggleTheme
+  - Persistencia en localStorage
+end note
+
+note bottom of protectedRoute
+  **ProtectedRoute** valida:
+  - Token JWT válido
+  - Usuario autenticado
+  - Redirige a /login si no está autenticado
+end note
+
+@enduml
+
