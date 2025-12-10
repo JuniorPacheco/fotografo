@@ -5,6 +5,7 @@ import { SessionStatus } from "../generated/prisma/enums";
 import { NotFoundError, ValidationError } from "../utils/errors";
 import { createEvent, updateEvent, deleteEvent } from "../utils/googleCalendar";
 import { sendDigitalPhotosPolicyReminder } from "../services/email.service";
+import { createSessionCompletedReminder } from "../services/reminder.service";
 
 // Schemas de validación
 const createSessionSchema = z.object({
@@ -223,6 +224,16 @@ export async function createSession(
       } catch (error) {
         // Log error but don't fail session creation if email fails
         console.error("Failed to send digital photos policy reminder:", error);
+      }
+    }
+
+    // Crear recordatorio de sesión completada si el estado es COMPLETED
+    if (finalStatus === "COMPLETED") {
+      try {
+        await createSessionCompletedReminder(invoice.client.name);
+      } catch (error) {
+        // Log error but don't fail session creation if reminder creation fails
+        console.error("Failed to create session completed reminder:", error);
       }
     }
 
@@ -508,14 +519,33 @@ export async function updateSession(
       data: updateData,
       include: {
         invoice: {
-          select: {
-            id: true,
-            clientId: true,
-            maxNumberSessions: true,
+          include: {
+            client: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
           },
         },
       },
     });
+
+    // Manejar recordatorios de sesión completada
+    const newStatus = body.status ?? existingSession.status;
+    const isNowCompleted = newStatus === "COMPLETED";
+
+    // Si la sesión cambió a COMPLETED (ya sea por primera vez o después de cambiar de estado)
+    if (isNowCompleted) {
+      try {
+        await createSessionCompletedReminder(
+          existingSession.invoice.client.name
+        );
+      } catch (error) {
+        // Log error but don't fail session update if reminder creation fails
+        console.error("Failed to create session completed reminder:", error);
+      }
+    }
 
     res.status(200).json({
       success: true,

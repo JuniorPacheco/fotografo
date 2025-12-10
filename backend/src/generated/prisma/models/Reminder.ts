@@ -29,6 +29,7 @@ export type ReminderMinAggregateOutputType = {
   date: Date | null
   clientName: string | null
   description: string | null
+  sessionId: string | null
   sentAt: Date | null
   isSent: boolean | null
   createdAt: Date | null
@@ -40,6 +41,7 @@ export type ReminderMaxAggregateOutputType = {
   date: Date | null
   clientName: string | null
   description: string | null
+  sessionId: string | null
   sentAt: Date | null
   isSent: boolean | null
   createdAt: Date | null
@@ -51,6 +53,7 @@ export type ReminderCountAggregateOutputType = {
   date: number
   clientName: number
   description: number
+  sessionId: number
   sentAt: number
   isSent: number
   createdAt: number
@@ -64,6 +67,7 @@ export type ReminderMinAggregateInputType = {
   date?: true
   clientName?: true
   description?: true
+  sessionId?: true
   sentAt?: true
   isSent?: true
   createdAt?: true
@@ -75,6 +79,7 @@ export type ReminderMaxAggregateInputType = {
   date?: true
   clientName?: true
   description?: true
+  sessionId?: true
   sentAt?: true
   isSent?: true
   createdAt?: true
@@ -86,6 +91,7 @@ export type ReminderCountAggregateInputType = {
   date?: true
   clientName?: true
   description?: true
+  sessionId?: true
   sentAt?: true
   isSent?: true
   createdAt?: true
@@ -170,6 +176,7 @@ export type ReminderGroupByOutputType = {
   date: Date
   clientName: string
   description: string
+  sessionId: string | null
   sentAt: Date | null
   isSent: boolean
   createdAt: Date
@@ -202,6 +209,7 @@ export type ReminderWhereInput = {
   date?: Prisma.DateTimeFilter<"Reminder"> | Date | string
   clientName?: Prisma.StringFilter<"Reminder"> | string
   description?: Prisma.StringFilter<"Reminder"> | string
+  sessionId?: Prisma.StringNullableFilter<"Reminder"> | string | null
   sentAt?: Prisma.DateTimeNullableFilter<"Reminder"> | Date | string | null
   isSent?: Prisma.BoolFilter<"Reminder"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Reminder"> | Date | string
@@ -213,6 +221,7 @@ export type ReminderOrderByWithRelationInput = {
   date?: Prisma.SortOrder
   clientName?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  sessionId?: Prisma.SortOrderInput | Prisma.SortOrder
   sentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   isSent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -227,6 +236,7 @@ export type ReminderWhereUniqueInput = Prisma.AtLeast<{
   date?: Prisma.DateTimeFilter<"Reminder"> | Date | string
   clientName?: Prisma.StringFilter<"Reminder"> | string
   description?: Prisma.StringFilter<"Reminder"> | string
+  sessionId?: Prisma.StringNullableFilter<"Reminder"> | string | null
   sentAt?: Prisma.DateTimeNullableFilter<"Reminder"> | Date | string | null
   isSent?: Prisma.BoolFilter<"Reminder"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Reminder"> | Date | string
@@ -238,6 +248,7 @@ export type ReminderOrderByWithAggregationInput = {
   date?: Prisma.SortOrder
   clientName?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  sessionId?: Prisma.SortOrderInput | Prisma.SortOrder
   sentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   isSent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -255,6 +266,7 @@ export type ReminderScalarWhereWithAggregatesInput = {
   date?: Prisma.DateTimeWithAggregatesFilter<"Reminder"> | Date | string
   clientName?: Prisma.StringWithAggregatesFilter<"Reminder"> | string
   description?: Prisma.StringWithAggregatesFilter<"Reminder"> | string
+  sessionId?: Prisma.StringNullableWithAggregatesFilter<"Reminder"> | string | null
   sentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Reminder"> | Date | string | null
   isSent?: Prisma.BoolWithAggregatesFilter<"Reminder"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Reminder"> | Date | string
@@ -266,6 +278,7 @@ export type ReminderCreateInput = {
   date: Date | string
   clientName: string
   description: string
+  sessionId?: string | null
   sentAt?: Date | string | null
   isSent?: boolean
   createdAt?: Date | string
@@ -277,6 +290,7 @@ export type ReminderUncheckedCreateInput = {
   date: Date | string
   clientName: string
   description: string
+  sessionId?: string | null
   sentAt?: Date | string | null
   isSent?: boolean
   createdAt?: Date | string
@@ -288,6 +302,7 @@ export type ReminderUpdateInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   clientName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  sessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isSent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -299,6 +314,7 @@ export type ReminderUncheckedUpdateInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   clientName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  sessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isSent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -310,6 +326,7 @@ export type ReminderCreateManyInput = {
   date: Date | string
   clientName: string
   description: string
+  sessionId?: string | null
   sentAt?: Date | string | null
   isSent?: boolean
   createdAt?: Date | string
@@ -321,6 +338,7 @@ export type ReminderUpdateManyMutationInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   clientName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  sessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isSent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -332,6 +350,7 @@ export type ReminderUncheckedUpdateManyInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   clientName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  sessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isSent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -343,6 +362,7 @@ export type ReminderCountOrderByAggregateInput = {
   date?: Prisma.SortOrder
   clientName?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  sessionId?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
   isSent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -354,6 +374,7 @@ export type ReminderMaxOrderByAggregateInput = {
   date?: Prisma.SortOrder
   clientName?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  sessionId?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
   isSent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -365,6 +386,7 @@ export type ReminderMinOrderByAggregateInput = {
   date?: Prisma.SortOrder
   clientName?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  sessionId?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
   isSent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -378,6 +400,7 @@ export type ReminderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   date?: boolean
   clientName?: boolean
   description?: boolean
+  sessionId?: boolean
   sentAt?: boolean
   isSent?: boolean
   createdAt?: boolean
@@ -389,6 +412,7 @@ export type ReminderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   date?: boolean
   clientName?: boolean
   description?: boolean
+  sessionId?: boolean
   sentAt?: boolean
   isSent?: boolean
   createdAt?: boolean
@@ -400,6 +424,7 @@ export type ReminderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   date?: boolean
   clientName?: boolean
   description?: boolean
+  sessionId?: boolean
   sentAt?: boolean
   isSent?: boolean
   createdAt?: boolean
@@ -411,13 +436,14 @@ export type ReminderSelectScalar = {
   date?: boolean
   clientName?: boolean
   description?: boolean
+  sessionId?: boolean
   sentAt?: boolean
   isSent?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ReminderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "date" | "clientName" | "description" | "sentAt" | "isSent" | "createdAt" | "updatedAt", ExtArgs["result"]["reminder"]>
+export type ReminderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "date" | "clientName" | "description" | "sessionId" | "sentAt" | "isSent" | "createdAt" | "updatedAt", ExtArgs["result"]["reminder"]>
 
 export type $ReminderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Reminder"
@@ -427,6 +453,7 @@ export type $ReminderPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     date: Date
     clientName: string
     description: string
+    sessionId: string | null
     sentAt: Date | null
     isSent: boolean
     createdAt: Date
@@ -858,6 +885,7 @@ export interface ReminderFieldRefs {
   readonly date: Prisma.FieldRef<"Reminder", 'DateTime'>
   readonly clientName: Prisma.FieldRef<"Reminder", 'String'>
   readonly description: Prisma.FieldRef<"Reminder", 'String'>
+  readonly sessionId: Prisma.FieldRef<"Reminder", 'String'>
   readonly sentAt: Prisma.FieldRef<"Reminder", 'DateTime'>
   readonly isSent: Prisma.FieldRef<"Reminder", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Reminder", 'DateTime'>

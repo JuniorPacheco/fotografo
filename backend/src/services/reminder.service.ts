@@ -3,6 +3,81 @@ import { sendClientReminder } from "./email.service";
 import { AppError } from "../utils/errors";
 
 /**
+ * Constante para identificar recordatorios de sesiones completadas
+ */
+const SESSION_COMPLETED_REMINDER_DESCRIPTION =
+  "Recordatorio de trabajo pendiente Cabal Studio";
+
+/**
+ * Calcula la fecha para el recordatorio (15 días después de hoy)
+ */
+function calculateReminderDate(): Date {
+  const today = new Date();
+  const reminderDate = new Date(today);
+  reminderDate.setDate(today.getDate() + 15);
+  // Normalizar a medianoche para comparaciones de fecha
+  reminderDate.setHours(0, 0, 0, 0);
+  return reminderDate;
+}
+
+/**
+ * Elimina recordatorios anteriores de sesiones completadas para un cliente
+ * que aún no han sido enviados
+ */
+async function deletePendingSessionReminders(
+  clientName: string
+): Promise<void> {
+  try {
+    await prisma.reminder.deleteMany({
+      where: {
+        clientName,
+        description: SESSION_COMPLETED_REMINDER_DESCRIPTION,
+        isSent: false, // Solo eliminar los que no han sido enviados
+      },
+    });
+  } catch (error) {
+    console.error(
+      `[Reminder Service] Error al eliminar recordatorios anteriores para ${clientName}:`,
+      error
+    );
+    // No lanzar error, solo loguear
+  }
+}
+
+/**
+ * Crea un recordatorio para una sesión completada
+ * @param clientName - Nombre del cliente
+ * @returns El recordatorio creado
+ */
+export async function createSessionCompletedReminder(
+  clientName: string
+): Promise<void> {
+  try {
+    // Eliminar recordatorios anteriores pendientes para este cliente
+    await deletePendingSessionReminders(clientName);
+
+    // Calcular la fecha del recordatorio (15 días después)
+    const reminderDate = calculateReminderDate();
+
+    // Crear el nuevo recordatorio
+    await prisma.reminder.create({
+      data: {
+        date: reminderDate,
+        clientName,
+        description: SESSION_COMPLETED_REMINDER_DESCRIPTION,
+        isSent: false,
+      },
+    });
+  } catch (error) {
+    console.error(
+      `[Reminder Service] Error al crear recordatorio de sesión completada para ${clientName}:`,
+      error
+    );
+    // No lanzar error para no interrumpir el flujo de creación/actualización de sesión
+  }
+}
+
+/**
  * Obtiene la fecha actual en Colombia (UTC-5) solo con la parte de fecha (sin hora)
  */
 function getTodayDateColombia(): Date {

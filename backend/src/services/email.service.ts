@@ -52,104 +52,104 @@ function getApiInstance(): brevo.TransactionalEmailsApi {
 
 function getDefaultFrom(): EmailRecipient {
   return {
-    email: ENVIRONMENTS.BREVO_FROM_EMAIL || "noreply@fotografo.com",
-    name: ENVIRONMENTS.BREVO_FROM_NAME || "Fotografo",
-  };
-}
+      email: ENVIRONMENTS.BREVO_FROM_EMAIL || "noreply@fotografo.com",
+      name: ENVIRONMENTS.BREVO_FROM_NAME || "Fotografo",
+    };
+  }
 
 function normalizeRecipients(
-  recipient: EmailRecipient | EmailRecipient[]
-): brevo.SendSmtpEmailToInner[] {
-  if (Array.isArray(recipient)) {
-    return recipient.map((r) => ({
-      email: r.email,
-      name: r.name,
-    }));
+    recipient: EmailRecipient | EmailRecipient[]
+  ): brevo.SendSmtpEmailToInner[] {
+    if (Array.isArray(recipient)) {
+      return recipient.map((r) => ({
+        email: r.email,
+        name: r.name,
+      }));
+    }
+    return [
+      {
+        email: recipient.email,
+        name: recipient.name,
+      },
+    ];
   }
-  return [
-    {
-      email: recipient.email,
-      name: recipient.name,
-    },
-  ];
-}
 
 async function sendEmail(
   options: SendEmailOptions
 ): Promise<brevo.CreateSmtpEmail> {
-  try {
+    try {
     const api = getApiInstance();
     const defaultFrom = getDefaultFrom();
-    const sendSmtpEmail = new brevo.SendSmtpEmail();
+      const sendSmtpEmail = new brevo.SendSmtpEmail();
 
     sendSmtpEmail.to = normalizeRecipients(options.to);
-    sendSmtpEmail.subject = options.subject;
-    sendSmtpEmail.htmlContent = options.htmlContent;
+      sendSmtpEmail.subject = options.subject;
+      sendSmtpEmail.htmlContent = options.htmlContent;
 
-    if (options.textContent) {
-      sendSmtpEmail.textContent = options.textContent;
-    }
+      if (options.textContent) {
+        sendSmtpEmail.textContent = options.textContent;
+      }
 
-    sendSmtpEmail.sender = options.from
-      ? {
-          email: options.from.email,
-          name: options.from.name,
-        }
-      : {
+      sendSmtpEmail.sender = options.from
+        ? {
+            email: options.from.email,
+            name: options.from.name,
+          }
+        : {
           email: defaultFrom.email,
           name: defaultFrom.name,
+          };
+
+      if (options.replyTo) {
+        sendSmtpEmail.replyTo = {
+          email: options.replyTo.email,
+          name: options.replyTo.name,
         };
+      }
 
-    if (options.replyTo) {
-      sendSmtpEmail.replyTo = {
-        email: options.replyTo.email,
-        name: options.replyTo.name,
-      };
-    }
+      if (options.cc && options.cc.length > 0) {
+        sendSmtpEmail.cc = options.cc.map((r) => ({
+          email: r.email,
+          name: r.name,
+        }));
+      }
 
-    if (options.cc && options.cc.length > 0) {
-      sendSmtpEmail.cc = options.cc.map((r) => ({
-        email: r.email,
-        name: r.name,
-      }));
-    }
-
-    if (options.bcc && options.bcc.length > 0) {
-      sendSmtpEmail.bcc = options.bcc.map((r) => ({
-        email: r.email,
-        name: r.name,
-      }));
-    }
+      if (options.bcc && options.bcc.length > 0) {
+        sendSmtpEmail.bcc = options.bcc.map((r) => ({
+          email: r.email,
+          name: r.name,
+        }));
+      }
 
     const response = await api.sendTransacEmail(sendSmtpEmail);
-    return response.body;
-  } catch (error) {
-    if (error instanceof Error) {
+      return response.body;
+    } catch (error) {
+      if (error instanceof Error) {
       throw new AppError(`Failed to send email: ${error.message}`, 500, false);
+      }
+      throw new AppError("Failed to send email: Unknown error", 500, false);
     }
-    throw new AppError("Failed to send email: Unknown error", 500, false);
   }
-}
 
 async function sendReminderEmail(
-  options: SendReminderEmailOptions
-): Promise<brevo.CreateSmtpEmail> {
+    options: SendReminderEmailOptions
+  ): Promise<brevo.CreateSmtpEmail> {
   return sendEmail({
-    to: options.to,
-    subject: options.subject,
-    htmlContent: options.htmlContent,
-    textContent: options.textContent,
-  });
-}
+      to: options.to,
+      subject: options.subject,
+      htmlContent: options.htmlContent,
+      textContent: options.textContent,
+    });
+  }
 
 async function sendSessionReminder(
-  recipientEmail: string,
-  recipientName: string,
-  sessionDate: Date,
-  sessionTime: string,
-  clientName: string,
-  sessionType?: string
-): Promise<brevo.CreateSmtpEmail> {
+    recipientEmail: string,
+    recipientName: string,
+    sessionDate: Date,
+    sessionTime: string,
+    clientName: string,
+    sessionType?: string
+  ): Promise<brevo.CreateSmtpEmail> {
   const template = getSessionReminderTemplate({
     recipientName,
     clientName,
@@ -159,24 +159,24 @@ async function sendSessionReminder(
   });
 
   return sendReminderEmail({
-    to: {
-      email: recipientEmail,
-      name: recipientName,
-    },
+      to: {
+        email: recipientEmail,
+        name: recipientName,
+      },
     subject: template.subject,
     htmlContent: template.htmlContent,
     textContent: template.textContent,
-  });
-}
+    });
+  }
 
 async function sendPaymentReminder(
-  recipientEmail: string,
-  recipientName: string,
-  invoiceNumber: string,
-  amount: number,
-  dueDate: Date,
-  clientName: string
-): Promise<brevo.CreateSmtpEmail> {
+    recipientEmail: string,
+    recipientName: string,
+    invoiceNumber: string,
+    amount: number,
+    dueDate: Date,
+    clientName: string
+  ): Promise<brevo.CreateSmtpEmail> {
   const template = getPaymentReminderTemplate({
     recipientName,
     clientName,
@@ -250,15 +250,15 @@ async function sendPaymentInvoice(
   });
 
   return sendReminderEmail({
-    to: {
-      email: recipientEmail,
-      name: recipientName,
-    },
+      to: {
+        email: recipientEmail,
+        name: recipientName,
+      },
     subject: template.subject,
     htmlContent: template.htmlContent,
     textContent: template.textContent,
-  });
-}
+    });
+  }
 
 async function sendClientReminder(
   recipientEmail: string,
