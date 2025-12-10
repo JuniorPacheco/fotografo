@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { z } from "zod";
 import { prisma } from "../config/prisma";
 import { ValidationError, NotFoundError } from "../utils/errors";
+import { createPhotosReadyReminders } from "../services/reminder.service";
 
 // Schemas de validación
 const createInvoiceSchema = z.object({
@@ -83,6 +84,7 @@ export async function createInvoice(
       }
     }
 
+    const finalStatus = status || "PENDING";
     const invoice = await prisma.invoice.create({
       data: {
         clientId,
@@ -91,7 +93,7 @@ export async function createInvoice(
         maxNumberSessions: maxNumberSessions || 1,
         photosFolderPath: photosFolderPath || null,
         notes: notes || null,
-        status: status || "PENDING",
+        status: finalStatus,
       },
       include: {
         client: {
@@ -103,6 +105,16 @@ export async function createInvoice(
         },
       },
     });
+
+    // Crear recordatorios si el status es COMPLETED_PHOTOS_READY al crear
+    if (finalStatus === "COMPLETED_PHOTOS_READY") {
+      try {
+        await createPhotosReadyReminders(invoice.id, client.name);
+      } catch (error) {
+        // Log error but don't fail invoice creation if reminder creation fails
+        console.error("Failed to create photos ready reminders:", error);
+      }
+    }
 
     res.status(201).json({
       success: true,
@@ -312,9 +324,17 @@ export async function updateInvoice(
     const { id } = req.params;
     const body = updateInvoiceSchema.parse(req.body);
 
-    // Verificar que la factura existe
+    // Verificar que la factura existe y obtener el cliente
     const existingInvoice = await prisma.invoice.findUnique({
       where: { id },
+      include: {
+        client: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
 
     if (!existingInvoice) {
@@ -351,6 +371,12 @@ export async function updateInvoice(
       }
     }
 
+    // Verificar si el status está cambiando a COMPLETED_PHOTOS_READY
+    const newStatus = body.status;
+    const isChangingToPhotosReady =
+      newStatus === "COMPLETED_PHOTOS_READY" &&
+      existingInvoice.status !== "COMPLETED_PHOTOS_READY";
+
     const invoice = await prisma.invoice.update({
       where: { id },
       data: body,
@@ -364,6 +390,17 @@ export async function updateInvoice(
         },
       },
     });
+
+    // Crear recordatorios si el status cambió a COMPLETED_PHOTOS_READY
+    // Esto también eliminará recordatorios anteriores del mismo tipo para esta factura
+    if (isChangingToPhotosReady) {
+      try {
+        await createPhotosReadyReminders(id, existingInvoice.client.name);
+      } catch (error) {
+        // Log error but don't fail invoice update if reminder creation fails
+        console.error("Failed to create photos ready reminders:", error);
+      }
+    }
 
     res.status(200).json({
       success: true,

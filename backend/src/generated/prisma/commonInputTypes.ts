@@ -270,6 +270,23 @@ export type EnumPaymentMethodWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumPaymentMethodFilter<$PrismaModel>
 }
 
+export type EnumReminderTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ReminderType | Prisma.EnumReminderTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ReminderType[] | Prisma.ListEnumReminderTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ReminderType[] | Prisma.ListEnumReminderTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumReminderTypeFilter<$PrismaModel> | $Enums.ReminderType
+}
+
+export type EnumReminderTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ReminderType | Prisma.EnumReminderTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ReminderType[] | Prisma.ListEnumReminderTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ReminderType[] | Prisma.ListEnumReminderTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumReminderTypeWithAggregatesFilter<$PrismaModel> | $Enums.ReminderType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumReminderTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumReminderTypeFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -537,6 +554,23 @@ export type NestedEnumPaymentMethodWithAggregatesFilter<$PrismaModel = never> = 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumPaymentMethodFilter<$PrismaModel>
   _max?: Prisma.NestedEnumPaymentMethodFilter<$PrismaModel>
+}
+
+export type NestedEnumReminderTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ReminderType | Prisma.EnumReminderTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ReminderType[] | Prisma.ListEnumReminderTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ReminderType[] | Prisma.ListEnumReminderTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumReminderTypeFilter<$PrismaModel> | $Enums.ReminderType
+}
+
+export type NestedEnumReminderTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ReminderType | Prisma.EnumReminderTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ReminderType[] | Prisma.ListEnumReminderTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ReminderType[] | Prisma.ListEnumReminderTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumReminderTypeWithAggregatesFilter<$PrismaModel> | $Enums.ReminderType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumReminderTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumReminderTypeFilter<$PrismaModel>
 }
 
 

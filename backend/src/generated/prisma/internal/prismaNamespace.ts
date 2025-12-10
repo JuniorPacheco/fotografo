@@ -1147,6 +1147,8 @@ export const ReminderScalarFieldEnum = {
   date: 'date',
   clientName: 'clientName',
   description: 'description',
+  type: 'type',
+  invoiceId: 'invoiceId',
   sentAt: 'sentAt',
   isSent: 'isSent',
   createdAt: 'createdAt',
@@ -1302,6 +1304,20 @@ export type EnumPaymentMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
  * Reference to a field of type 'PaymentMethod[]'
  */
 export type ListEnumPaymentMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentMethod[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ReminderType'
+ */
+export type EnumReminderTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReminderType'>
+    
+
+
+/**
+ * Reference to a field of type 'ReminderType[]'
+ */
+export type ListEnumReminderTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReminderType[]'>
     
 
 

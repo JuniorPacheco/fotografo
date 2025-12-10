@@ -6,7 +6,7 @@ import { AppError } from "../utils/errors";
  * Constante para identificar recordatorios de sesiones completadas
  */
 const SESSION_COMPLETED_REMINDER_DESCRIPTION =
-  "Recordatorio de trabajo pendiente Cabal Studio";
+  "Recordatorio: Tiene un trabajo pendiente por recoger en Cabal Studios.";
 
 /**
  * Calcula la fecha para el recordatorio (15 días después de hoy)
@@ -15,6 +15,30 @@ function calculateReminderDate(): Date {
   const today = new Date();
   const reminderDate = new Date(today);
   reminderDate.setDate(today.getDate() + 15);
+  // Normalizar a medianoche para comparaciones de fecha
+  reminderDate.setHours(0, 0, 0, 0);
+  return reminderDate;
+}
+
+/**
+ * Calcula la fecha para el recordatorio de fotos listas (3 meses después de hoy)
+ */
+function calculatePhotosReady3MonthsDate(): Date {
+  const today = new Date();
+  const reminderDate = new Date(today);
+  reminderDate.setMonth(today.getMonth() + 3);
+  // Normalizar a medianoche para comparaciones de fecha
+  reminderDate.setHours(0, 0, 0, 0);
+  return reminderDate;
+}
+
+/**
+ * Calcula la fecha para el recordatorio de fotos listas (10 meses después de hoy)
+ */
+function calculatePhotosReady10MonthsDate(): Date {
+  const today = new Date();
+  const reminderDate = new Date(today);
+  reminderDate.setMonth(today.getMonth() + 10);
   // Normalizar a medianoche para comparaciones de fecha
   reminderDate.setHours(0, 0, 0, 0);
   return reminderDate;
@@ -65,6 +89,7 @@ export async function createSessionCompletedReminder(
         date: reminderDate,
         clientName,
         description: SESSION_COMPLETED_REMINDER_DESCRIPTION,
+        type: "SESSION_COMPLETED",
         isSent: false,
       },
     });
@@ -74,6 +99,90 @@ export async function createSessionCompletedReminder(
       error
     );
     // No lanzar error para no interrumpir el flujo de creación/actualización de sesión
+  }
+}
+
+/**
+ * Elimina recordatorios anteriores de fotos listas para una factura específica
+ * que aún no han sido enviados
+ */
+async function deletePendingPhotosReadyReminders(
+  invoiceId: string
+): Promise<void> {
+  try {
+    await prisma.reminder.deleteMany({
+      where: {
+        invoiceId,
+        type: {
+          in: ["PHOTOS_READY_3_MONTHS", "PHOTOS_READY_10_MONTHS"],
+        },
+        isSent: false, // Solo eliminar los que no han sido enviados
+      },
+    });
+  } catch (error) {
+    console.error(
+      `[Reminder Service] Error al eliminar recordatorios anteriores de fotos listas para invoice ${invoiceId}:`,
+      error
+    );
+    // No lanzar error, solo loguear
+  }
+}
+
+/**
+ * Crea recordatorios para cuando las fotos están listas (3 meses y 10 meses)
+ * @param invoiceId - ID de la factura
+ * @param clientName - Nombre del cliente
+ */
+export async function createPhotosReadyReminders(
+  invoiceId: string,
+  clientName: string
+): Promise<void> {
+  try {
+    // Eliminar recordatorios anteriores pendientes para esta factura
+    await deletePendingPhotosReadyReminders(invoiceId);
+
+    // Calcular las fechas de los recordatorios
+    const reminderDate3Months = calculatePhotosReady3MonthsDate();
+    const reminderDate10Months = calculatePhotosReady10MonthsDate();
+
+    // Crear mensajes sutiles y profesionales
+    const reminder3MonthsDescription = `${clientName}, recordatorio amable de Cabal Studios: Sus fotografías están listas y esperando por usted. Le invitamos cordialmente a pasar por nuestro estudio para recogerlas cuando le sea conveniente.`;
+
+    const reminder10MonthsDescription = `${clientName}, notificación de Cabal Studios: Hemos alcanzado el plazo máximo de almacenamiento de sus fotografías. Procederemos a omitir el almacenamiento de las mismas. Agradecemos su comprensión.`;
+
+    // Crear el recordatorio de 3 meses
+    await prisma.reminder.create({
+      data: {
+        date: reminderDate3Months,
+        clientName,
+        description: reminder3MonthsDescription,
+        type: "PHOTOS_READY_3_MONTHS",
+        invoiceId,
+        isSent: false,
+      },
+    });
+
+    // Crear el recordatorio de 10 meses
+    await prisma.reminder.create({
+      data: {
+        date: reminderDate10Months,
+        clientName,
+        description: reminder10MonthsDescription,
+        type: "PHOTOS_READY_10_MONTHS",
+        invoiceId,
+        isSent: false,
+      },
+    });
+
+    console.log(
+      `[Reminder Service] Recordatorios de fotos listas creados para invoice ${invoiceId} (${clientName}) - 3 y 10 meses`
+    );
+  } catch (error) {
+    console.error(
+      `[Reminder Service] Error al crear recordatorios de fotos listas para invoice ${invoiceId}:`,
+      error
+    );
+    // No lanzar error para no interrumpir el flujo de actualización de factura
   }
 }
 

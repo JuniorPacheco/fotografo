@@ -48,3 +48,12 @@ export const UserRole = {
 } as const
 
 export type UserRole = (typeof UserRole)[keyof typeof UserRole]
+
+
+export const ReminderType = {
+  SESSION_COMPLETED: 'SESSION_COMPLETED',
+  PHOTOS_READY_3_MONTHS: 'PHOTOS_READY_3_MONTHS',
+  PHOTOS_READY_10_MONTHS: 'PHOTOS_READY_10_MONTHS'
+} as const
+
+export type ReminderType = (typeof ReminderType)[keyof typeof ReminderType]

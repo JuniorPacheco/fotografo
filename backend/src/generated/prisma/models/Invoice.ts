@@ -264,6 +264,7 @@ export type InvoiceWhereInput = {
   package?: Prisma.XOR<Prisma.PackageNullableScalarRelationFilter, Prisma.PackageWhereInput> | null
   sessions?: Prisma.SessionListRelationFilter
   payments?: Prisma.PaymentListRelationFilter
+  reminders?: Prisma.ReminderListRelationFilter
 }
 
 export type InvoiceOrderByWithRelationInput = {
@@ -281,6 +282,7 @@ export type InvoiceOrderByWithRelationInput = {
   package?: Prisma.PackageOrderByWithRelationInput
   sessions?: Prisma.SessionOrderByRelationAggregateInput
   payments?: Prisma.PaymentOrderByRelationAggregateInput
+  reminders?: Prisma.ReminderOrderByRelationAggregateInput
 }
 
 export type InvoiceWhereUniqueInput = Prisma.AtLeast<{
@@ -301,6 +303,7 @@ export type InvoiceWhereUniqueInput = Prisma.AtLeast<{
   package?: Prisma.XOR<Prisma.PackageNullableScalarRelationFilter, Prisma.PackageWhereInput> | null
   sessions?: Prisma.SessionListRelationFilter
   payments?: Prisma.PaymentListRelationFilter
+  reminders?: Prisma.ReminderListRelationFilter
 }, "id">
 
 export type InvoiceOrderByWithAggregationInput = {
@@ -350,6 +353,7 @@ export type InvoiceCreateInput = {
   package?: Prisma.PackageCreateNestedOneWithoutInvoicesInput
   sessions?: Prisma.SessionCreateNestedManyWithoutInvoiceInput
   payments?: Prisma.PaymentCreateNestedManyWithoutInvoiceInput
+  reminders?: Prisma.ReminderCreateNestedManyWithoutInvoiceInput
 }
 
 export type InvoiceUncheckedCreateInput = {
@@ -365,6 +369,7 @@ export type InvoiceUncheckedCreateInput = {
   updatedAt?: Date | string
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutInvoiceInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutInvoiceInput
+  reminders?: Prisma.ReminderUncheckedCreateNestedManyWithoutInvoiceInput
 }
 
 export type InvoiceUpdateInput = {
@@ -380,6 +385,7 @@ export type InvoiceUpdateInput = {
   package?: Prisma.PackageUpdateOneWithoutInvoicesNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutInvoiceNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutInvoiceNestedInput
+  reminders?: Prisma.ReminderUpdateManyWithoutInvoiceNestedInput
 }
 
 export type InvoiceUncheckedUpdateInput = {
@@ -395,6 +401,7 @@ export type InvoiceUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutInvoiceNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutInvoiceNestedInput
+  reminders?: Prisma.ReminderUncheckedUpdateManyWithoutInvoiceNestedInput
 }
 
 export type InvoiceCreateManyInput = {
@@ -496,6 +503,11 @@ export type InvoiceSumOrderByAggregateInput = {
 export type InvoiceScalarRelationFilter = {
   is?: Prisma.InvoiceWhereInput
   isNot?: Prisma.InvoiceWhereInput
+}
+
+export type InvoiceNullableScalarRelationFilter = {
+  is?: Prisma.InvoiceWhereInput | null
+  isNot?: Prisma.InvoiceWhereInput | null
 }
 
 export type InvoiceCreateNestedManyWithoutClientInput = {
@@ -622,6 +634,22 @@ export type InvoiceUpdateOneRequiredWithoutPaymentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.InvoiceUpdateToOneWithWhereWithoutPaymentsInput, Prisma.InvoiceUpdateWithoutPaymentsInput>, Prisma.InvoiceUncheckedUpdateWithoutPaymentsInput>
 }
 
+export type InvoiceCreateNestedOneWithoutRemindersInput = {
+  create?: Prisma.XOR<Prisma.InvoiceCreateWithoutRemindersInput, Prisma.InvoiceUncheckedCreateWithoutRemindersInput>
+  connectOrCreate?: Prisma.InvoiceCreateOrConnectWithoutRemindersInput
+  connect?: Prisma.InvoiceWhereUniqueInput
+}
+
+export type InvoiceUpdateOneWithoutRemindersNestedInput = {
+  create?: Prisma.XOR<Prisma.InvoiceCreateWithoutRemindersInput, Prisma.InvoiceUncheckedCreateWithoutRemindersInput>
+  connectOrCreate?: Prisma.InvoiceCreateOrConnectWithoutRemindersInput
+  upsert?: Prisma.InvoiceUpsertWithoutRemindersInput
+  disconnect?: Prisma.InvoiceWhereInput | boolean
+  delete?: Prisma.InvoiceWhereInput | boolean
+  connect?: Prisma.InvoiceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InvoiceUpdateToOneWithWhereWithoutRemindersInput, Prisma.InvoiceUpdateWithoutRemindersInput>, Prisma.InvoiceUncheckedUpdateWithoutRemindersInput>
+}
+
 export type InvoiceCreateWithoutClientInput = {
   id?: string
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -634,6 +662,7 @@ export type InvoiceCreateWithoutClientInput = {
   package?: Prisma.PackageCreateNestedOneWithoutInvoicesInput
   sessions?: Prisma.SessionCreateNestedManyWithoutInvoiceInput
   payments?: Prisma.PaymentCreateNestedManyWithoutInvoiceInput
+  reminders?: Prisma.ReminderCreateNestedManyWithoutInvoiceInput
 }
 
 export type InvoiceUncheckedCreateWithoutClientInput = {
@@ -648,6 +677,7 @@ export type InvoiceUncheckedCreateWithoutClientInput = {
   updatedAt?: Date | string
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutInvoiceInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutInvoiceInput
+  reminders?: Prisma.ReminderUncheckedCreateNestedManyWithoutInvoiceInput
 }
 
 export type InvoiceCreateOrConnectWithoutClientInput = {
@@ -704,6 +734,7 @@ export type InvoiceCreateWithoutPackageInput = {
   client: Prisma.ClientCreateNestedOneWithoutInvoicesInput
   sessions?: Prisma.SessionCreateNestedManyWithoutInvoiceInput
   payments?: Prisma.PaymentCreateNestedManyWithoutInvoiceInput
+  reminders?: Prisma.ReminderCreateNestedManyWithoutInvoiceInput
 }
 
 export type InvoiceUncheckedCreateWithoutPackageInput = {
@@ -718,6 +749,7 @@ export type InvoiceUncheckedCreateWithoutPackageInput = {
   updatedAt?: Date | string
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutInvoiceInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutInvoiceInput
+  reminders?: Prisma.ReminderUncheckedCreateNestedManyWithoutInvoiceInput
 }
 
 export type InvoiceCreateOrConnectWithoutPackageInput = {
@@ -758,6 +790,7 @@ export type InvoiceCreateWithoutSessionsInput = {
   client: Prisma.ClientCreateNestedOneWithoutInvoicesInput
   package?: Prisma.PackageCreateNestedOneWithoutInvoicesInput
   payments?: Prisma.PaymentCreateNestedManyWithoutInvoiceInput
+  reminders?: Prisma.ReminderCreateNestedManyWithoutInvoiceInput
 }
 
 export type InvoiceUncheckedCreateWithoutSessionsInput = {
@@ -772,6 +805,7 @@ export type InvoiceUncheckedCreateWithoutSessionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutInvoiceInput
+  reminders?: Prisma.ReminderUncheckedCreateNestedManyWithoutInvoiceInput
 }
 
 export type InvoiceCreateOrConnectWithoutSessionsInput = {
@@ -802,6 +836,7 @@ export type InvoiceUpdateWithoutSessionsInput = {
   client?: Prisma.ClientUpdateOneRequiredWithoutInvoicesNestedInput
   package?: Prisma.PackageUpdateOneWithoutInvoicesNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutInvoiceNestedInput
+  reminders?: Prisma.ReminderUpdateManyWithoutInvoiceNestedInput
 }
 
 export type InvoiceUncheckedUpdateWithoutSessionsInput = {
@@ -816,6 +851,7 @@ export type InvoiceUncheckedUpdateWithoutSessionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutInvoiceNestedInput
+  reminders?: Prisma.ReminderUncheckedUpdateManyWithoutInvoiceNestedInput
 }
 
 export type InvoiceCreateWithoutPaymentsInput = {
@@ -830,6 +866,7 @@ export type InvoiceCreateWithoutPaymentsInput = {
   client: Prisma.ClientCreateNestedOneWithoutInvoicesInput
   package?: Prisma.PackageCreateNestedOneWithoutInvoicesInput
   sessions?: Prisma.SessionCreateNestedManyWithoutInvoiceInput
+  reminders?: Prisma.ReminderCreateNestedManyWithoutInvoiceInput
 }
 
 export type InvoiceUncheckedCreateWithoutPaymentsInput = {
@@ -844,6 +881,7 @@ export type InvoiceUncheckedCreateWithoutPaymentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutInvoiceInput
+  reminders?: Prisma.ReminderUncheckedCreateNestedManyWithoutInvoiceInput
 }
 
 export type InvoiceCreateOrConnectWithoutPaymentsInput = {
@@ -874,6 +912,7 @@ export type InvoiceUpdateWithoutPaymentsInput = {
   client?: Prisma.ClientUpdateOneRequiredWithoutInvoicesNestedInput
   package?: Prisma.PackageUpdateOneWithoutInvoicesNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutInvoiceNestedInput
+  reminders?: Prisma.ReminderUpdateManyWithoutInvoiceNestedInput
 }
 
 export type InvoiceUncheckedUpdateWithoutPaymentsInput = {
@@ -888,6 +927,83 @@ export type InvoiceUncheckedUpdateWithoutPaymentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutInvoiceNestedInput
+  reminders?: Prisma.ReminderUncheckedUpdateManyWithoutInvoiceNestedInput
+}
+
+export type InvoiceCreateWithoutRemindersInput = {
+  id?: string
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.InvoiceStatus
+  maxNumberSessions?: number
+  photosFolderPath?: string | null
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  client: Prisma.ClientCreateNestedOneWithoutInvoicesInput
+  package?: Prisma.PackageCreateNestedOneWithoutInvoicesInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutInvoiceInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutInvoiceInput
+}
+
+export type InvoiceUncheckedCreateWithoutRemindersInput = {
+  id?: string
+  clientId: string
+  packageId?: string | null
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.InvoiceStatus
+  maxNumberSessions?: number
+  photosFolderPath?: string | null
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutInvoiceInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutInvoiceInput
+}
+
+export type InvoiceCreateOrConnectWithoutRemindersInput = {
+  where: Prisma.InvoiceWhereUniqueInput
+  create: Prisma.XOR<Prisma.InvoiceCreateWithoutRemindersInput, Prisma.InvoiceUncheckedCreateWithoutRemindersInput>
+}
+
+export type InvoiceUpsertWithoutRemindersInput = {
+  update: Prisma.XOR<Prisma.InvoiceUpdateWithoutRemindersInput, Prisma.InvoiceUncheckedUpdateWithoutRemindersInput>
+  create: Prisma.XOR<Prisma.InvoiceCreateWithoutRemindersInput, Prisma.InvoiceUncheckedCreateWithoutRemindersInput>
+  where?: Prisma.InvoiceWhereInput
+}
+
+export type InvoiceUpdateToOneWithWhereWithoutRemindersInput = {
+  where?: Prisma.InvoiceWhereInput
+  data: Prisma.XOR<Prisma.InvoiceUpdateWithoutRemindersInput, Prisma.InvoiceUncheckedUpdateWithoutRemindersInput>
+}
+
+export type InvoiceUpdateWithoutRemindersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
+  maxNumberSessions?: Prisma.IntFieldUpdateOperationsInput | number
+  photosFolderPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  client?: Prisma.ClientUpdateOneRequiredWithoutInvoicesNestedInput
+  package?: Prisma.PackageUpdateOneWithoutInvoicesNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutInvoiceNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutInvoiceNestedInput
+}
+
+export type InvoiceUncheckedUpdateWithoutRemindersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  clientId?: Prisma.StringFieldUpdateOperationsInput | string
+  packageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
+  maxNumberSessions?: Prisma.IntFieldUpdateOperationsInput | number
+  photosFolderPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutInvoiceNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutInvoiceNestedInput
 }
 
 export type InvoiceCreateManyClientInput = {
@@ -914,6 +1030,7 @@ export type InvoiceUpdateWithoutClientInput = {
   package?: Prisma.PackageUpdateOneWithoutInvoicesNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutInvoiceNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutInvoiceNestedInput
+  reminders?: Prisma.ReminderUpdateManyWithoutInvoiceNestedInput
 }
 
 export type InvoiceUncheckedUpdateWithoutClientInput = {
@@ -928,6 +1045,7 @@ export type InvoiceUncheckedUpdateWithoutClientInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutInvoiceNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutInvoiceNestedInput
+  reminders?: Prisma.ReminderUncheckedUpdateManyWithoutInvoiceNestedInput
 }
 
 export type InvoiceUncheckedUpdateManyWithoutClientInput = {
@@ -966,6 +1084,7 @@ export type InvoiceUpdateWithoutPackageInput = {
   client?: Prisma.ClientUpdateOneRequiredWithoutInvoicesNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutInvoiceNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutInvoiceNestedInput
+  reminders?: Prisma.ReminderUpdateManyWithoutInvoiceNestedInput
 }
 
 export type InvoiceUncheckedUpdateWithoutPackageInput = {
@@ -980,6 +1099,7 @@ export type InvoiceUncheckedUpdateWithoutPackageInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutInvoiceNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutInvoiceNestedInput
+  reminders?: Prisma.ReminderUncheckedUpdateManyWithoutInvoiceNestedInput
 }
 
 export type InvoiceUncheckedUpdateManyWithoutPackageInput = {
@@ -1002,11 +1122,13 @@ export type InvoiceUncheckedUpdateManyWithoutPackageInput = {
 export type InvoiceCountOutputType = {
   sessions: number
   payments: number
+  reminders: number
 }
 
 export type InvoiceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sessions?: boolean | InvoiceCountOutputTypeCountSessionsArgs
   payments?: boolean | InvoiceCountOutputTypeCountPaymentsArgs
+  reminders?: boolean | InvoiceCountOutputTypeCountRemindersArgs
 }
 
 /**
@@ -1033,6 +1155,13 @@ export type InvoiceCountOutputTypeCountPaymentsArgs<ExtArgs extends runtime.Type
   where?: Prisma.PaymentWhereInput
 }
 
+/**
+ * InvoiceCountOutputType without action
+ */
+export type InvoiceCountOutputTypeCountRemindersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReminderWhereInput
+}
+
 
 export type InvoiceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1049,6 +1178,7 @@ export type InvoiceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   package?: boolean | Prisma.Invoice$packageArgs<ExtArgs>
   sessions?: boolean | Prisma.Invoice$sessionsArgs<ExtArgs>
   payments?: boolean | Prisma.Invoice$paymentsArgs<ExtArgs>
+  reminders?: boolean | Prisma.Invoice$remindersArgs<ExtArgs>
   _count?: boolean | Prisma.InvoiceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["invoice"]>
 
@@ -1101,6 +1231,7 @@ export type InvoiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   package?: boolean | Prisma.Invoice$packageArgs<ExtArgs>
   sessions?: boolean | Prisma.Invoice$sessionsArgs<ExtArgs>
   payments?: boolean | Prisma.Invoice$paymentsArgs<ExtArgs>
+  reminders?: boolean | Prisma.Invoice$remindersArgs<ExtArgs>
   _count?: boolean | Prisma.InvoiceCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type InvoiceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1119,6 +1250,7 @@ export type $InvoicePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     package: Prisma.$PackagePayload<ExtArgs> | null
     sessions: Prisma.$SessionPayload<ExtArgs>[]
     payments: Prisma.$PaymentPayload<ExtArgs>[]
+    reminders: Prisma.$ReminderPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1529,6 +1661,7 @@ export interface Prisma__InvoiceClient<T, Null = never, ExtArgs extends runtime.
   package<T extends Prisma.Invoice$packageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Invoice$packageArgs<ExtArgs>>): Prisma.Prisma__PackageClient<runtime.Types.Result.GetResult<Prisma.$PackagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   sessions<T extends Prisma.Invoice$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Invoice$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   payments<T extends Prisma.Invoice$paymentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Invoice$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  reminders<T extends Prisma.Invoice$remindersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Invoice$remindersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReminderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2028,6 +2161,30 @@ export type Invoice$paymentsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.PaymentScalarFieldEnum | Prisma.PaymentScalarFieldEnum[]
+}
+
+/**
+ * Invoice.reminders
+ */
+export type Invoice$remindersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Reminder
+   */
+  select?: Prisma.ReminderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Reminder
+   */
+  omit?: Prisma.ReminderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReminderInclude<ExtArgs> | null
+  where?: Prisma.ReminderWhereInput
+  orderBy?: Prisma.ReminderOrderByWithRelationInput | Prisma.ReminderOrderByWithRelationInput[]
+  cursor?: Prisma.ReminderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReminderScalarFieldEnum | Prisma.ReminderScalarFieldEnum[]
 }
 
 /**
