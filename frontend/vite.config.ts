@@ -26,6 +26,7 @@ export default defineConfig({
     port: parseInt(process.env.PORT || "4173", 10),
     strictPort: false,
     // Permitir todos los hosts en producción (Railway asigna hosts dinámicos)
-    allowedHosts: ["all"],
+    // true permite todos los hosts, incluyendo los dinámicos de Railway
+    allowedHosts: true,
   },
 });
