@@ -9,22 +9,14 @@ import { z } from "zod";
 const router: Router = Router();
 
 // Schemas de validación
+// Schema de validación para crear factura (status siempre será PENDING
 const createInvoiceSchema = z.object({
   clientId: z.string().uuid("Invalid client ID"),
   totalAmount: z.number().positive("Total amount must be positive"),
   maxNumberSessions: z.number().int().positive().min(1).max(100).optional(),
   photosFolderPath: z.string().max(500).optional(),
   notes: z.string().max(1000).optional(),
-  status: z
-    .enum([
-      "PENDING",
-      "IN_PROGRESS",
-      "COMPLETED_PENDING_PHOTOS",
-      "COMPLETED_PHOTOS_READY",
-      "COMPLETED_AND_CLAIMED",
-      "CANCELLED",
-    ])
-    .optional(),
+  // status no se permite en creación - siempre será PENDING
 });
 
 const updateInvoiceSchema = z.object({
@@ -86,10 +78,7 @@ const updateInvoiceSchema = z.object({
  *                 type: string
  *                 maxLength: 1000
  *                 example: "Sesión de boda"
- *               status:
- *                 type: string
- *                 enum: [PENDING, IN_PROGRESS, COMPLETED_PENDING_PHOTOS, COMPLETED_PHOTOS_READY, COMPLETED_AND_CLAIMED, CANCELLED]
- *                 default: PENDING
+ *               note: Las facturas siempre se crean con status PENDING. El campo status no se acepta en la creación.
  *     responses:
  *       201:
  *         description: Invoice created successfully

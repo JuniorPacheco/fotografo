@@ -88,7 +88,15 @@ function CreateInvoiceModal({
     e.preventDefault();
     setIsLoading(true);
     try {
-      await invoiceService.create(formData);
+      // Asegurar que el status siempre sea PENDING (aunque el backend lo fuerza)
+      // Convertir totalAmount y maxNumberSessions a números explícitamente
+      const submitData = {
+        ...formData,
+        totalAmount: Number(formData.totalAmount),
+        maxNumberSessions: Number(formData.maxNumberSessions) || 1,
+        status: "PENDING" as const,
+      };
+      await invoiceService.create(submitData);
       onCreated();
       onClose();
       // Reset form
@@ -251,31 +259,21 @@ function CreateInvoiceModal({
               <Label htmlFor="create-status">Estado</Label>
               <Select
                 value={formData.status}
-                onValueChange={(value) =>
-                  setFormData({
-                    ...formData,
-                    status: value as CreateInvoiceRequest["status"],
-                  })
-                }
+                disabled
+                onValueChange={() => {
+                  // No permitir cambio - siempre PENDING
+                }}
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-muted">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="PENDING">Pendiente</SelectItem>
-                  <SelectItem value="IN_PROGRESS">En Progreso</SelectItem>
-                  <SelectItem value="COMPLETED_PENDING_PHOTOS">
-                    Completado - Pendiente Fotos
-                  </SelectItem>
-                  <SelectItem value="COMPLETED_PHOTOS_READY">
-                    Completado - Fotos Listas
-                  </SelectItem>
-                  <SelectItem value="COMPLETED_AND_CLAIMED">
-                    Completado y Reclamado
-                  </SelectItem>
-                  <SelectItem value="CANCELLED">Cancelado</SelectItem>
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground">
+                Las facturas siempre se crean con estado "Pendiente"
+              </p>
             </div>
 
             <div className="space-y-2">

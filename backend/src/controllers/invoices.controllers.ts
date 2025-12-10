@@ -13,16 +13,7 @@ const createInvoiceSchema = z.object({
   maxNumberSessions: z.number().int().positive().min(1).max(100).optional(),
   photosFolderPath: z.string().max(500).optional(),
   notes: z.string().max(1000).optional(),
-  status: z
-    .enum([
-      "PENDING",
-      "IN_PROGRESS",
-      "COMPLETED_PENDING_PHOTOS",
-      "COMPLETED_PHOTOS_READY",
-      "COMPLETED_AND_CLAIMED",
-      "CANCELLED",
-    ])
-    .optional(),
+  // status no se permite en creación - siempre será PENDING
 });
 
 const updateInvoiceSchema = z.object({
@@ -58,7 +49,6 @@ export async function createInvoice(
       maxNumberSessions,
       photosFolderPath,
       notes,
-      status,
     } = body;
 
     // Verificar que el cliente existe y no está eliminado
@@ -87,7 +77,7 @@ export async function createInvoice(
       }
     }
 
-    const finalStatus: InvoiceStatus = (status || "PENDING") as InvoiceStatus;
+    // Siempre crear facturas con status PENDING
     const invoice = await prisma.invoice.create({
       data: {
         clientId,
@@ -96,7 +86,7 @@ export async function createInvoice(
         maxNumberSessions: maxNumberSessions || 1,
         photosFolderPath: photosFolderPath || null,
         notes: notes || null,
-        status: finalStatus,
+        status: "PENDING",
       },
       include: {
         client: {
@@ -109,15 +99,7 @@ export async function createInvoice(
       },
     });
 
-    // Crear recordatorios si el status es COMPLETED_PHOTOS_READY al crear
-    if (finalStatus === "COMPLETED_PHOTOS_READY") {
-      try {
-        await createPhotosReadyReminders(invoice.id, client.name);
-      } catch (error) {
-        // Log error but don't fail invoice creation if reminder creation fails
-        console.error("Failed to create photos ready reminders:", error);
-      }
-    }
+    // No se crean recordatorios al crear factura porque siempre se crea con status PENDING
 
     res.status(201).json({
       success: true,
