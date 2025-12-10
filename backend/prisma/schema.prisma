@@ -22,6 +22,7 @@ enum InvoiceStatus {
   IN_PROGRESS // En progreso (sesiones activas)
   COMPLETED_PENDING_PHOTOS // Completado pero pendiente fotos físicas
   COMPLETED_PHOTOS_READY // Completado con fotos listas para recoger
+  COMPLETED_AND_CLAIMED // Completado y reclamado por el cliente
   CANCELLED // Cancelado
 
   @@map("invoice_status")

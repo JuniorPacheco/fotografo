@@ -263,6 +263,9 @@ function InvoiceModal({
                   <SelectItem value="COMPLETED_PHOTOS_READY">
                     Completado - Fotos Listas
                   </SelectItem>
+                  <SelectItem value="COMPLETED_AND_CLAIMED">
+                    Completado y Reclamado
+                  </SelectItem>
                   <SelectItem value="CANCELLED">Cancelado</SelectItem>
                 </SelectContent>
               </Select>

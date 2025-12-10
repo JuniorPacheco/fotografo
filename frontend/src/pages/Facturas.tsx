@@ -154,6 +154,7 @@ function Facturas() {
       IN_PROGRESS: "En Progreso",
       COMPLETED_PENDING_PHOTOS: "Completado - Pendiente Fotos",
       COMPLETED_PHOTOS_READY: "Completado - Fotos Listas",
+      COMPLETED_AND_CLAIMED: "Completado y Reclamado",
       CANCELLED: "Cancelado",
     };
     return labels[status];
@@ -170,6 +171,7 @@ function Facturas() {
       IN_PROGRESS: "default",
       COMPLETED_PENDING_PHOTOS: "default",
       COMPLETED_PHOTOS_READY: "default",
+      COMPLETED_AND_CLAIMED: "outline",
       CANCELLED: "destructive",
     };
     return variants[status];

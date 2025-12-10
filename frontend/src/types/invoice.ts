@@ -10,6 +10,7 @@ export interface Invoice {
     | "IN_PROGRESS"
     | "COMPLETED_PENDING_PHOTOS"
     | "COMPLETED_PHOTOS_READY"
+    | "COMPLETED_AND_CLAIMED"
     | "CANCELLED";
   maxNumberSessions: number;
   photosFolderPath: string | null;
@@ -45,6 +46,7 @@ export interface CreateInvoiceRequest {
     | "IN_PROGRESS"
     | "COMPLETED_PENDING_PHOTOS"
     | "COMPLETED_PHOTOS_READY"
+    | "COMPLETED_AND_CLAIMED"
     | "CANCELLED";
 }
 
@@ -60,6 +62,7 @@ export interface UpdateInvoiceRequest {
     | "IN_PROGRESS"
     | "COMPLETED_PENDING_PHOTOS"
     | "COMPLETED_PHOTOS_READY"
+    | "COMPLETED_AND_CLAIMED"
     | "CANCELLED";
 }
 

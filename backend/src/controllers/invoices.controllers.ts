@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "../config/prisma";
 import { ValidationError, NotFoundError } from "../utils/errors";
 import { createPhotosReadyReminders } from "../services/reminder.service";
+import type { InvoiceStatus } from "../generated/prisma/enums";
 
 // Schemas de validación
 const createInvoiceSchema = z.object({
@@ -18,6 +19,7 @@ const createInvoiceSchema = z.object({
       "IN_PROGRESS",
       "COMPLETED_PENDING_PHOTOS",
       "COMPLETED_PHOTOS_READY",
+      "COMPLETED_AND_CLAIMED",
       "CANCELLED",
     ])
     .optional(),
@@ -36,6 +38,7 @@ const updateInvoiceSchema = z.object({
       "IN_PROGRESS",
       "COMPLETED_PENDING_PHOTOS",
       "COMPLETED_PHOTOS_READY",
+      "COMPLETED_AND_CLAIMED",
       "CANCELLED",
     ])
     .optional(),
@@ -84,7 +87,7 @@ export async function createInvoice(
       }
     }
 
-    const finalStatus = status || "PENDING";
+    const finalStatus: InvoiceStatus = (status || "PENDING") as InvoiceStatus;
     const invoice = await prisma.invoice.create({
       data: {
         clientId,
@@ -372,14 +375,27 @@ export async function updateInvoice(
     }
 
     // Verificar si el status está cambiando a COMPLETED_PHOTOS_READY
-    const newStatus = body.status;
+    const newStatus = body.status as InvoiceStatus | undefined;
     const isChangingToPhotosReady =
       newStatus === "COMPLETED_PHOTOS_READY" &&
       existingInvoice.status !== "COMPLETED_PHOTOS_READY";
 
+    // Verificar si el status está cambiando a COMPLETED_AND_CLAIMED
+    const isChangingToCompletedAndClaimed =
+      newStatus === "COMPLETED_AND_CLAIMED" &&
+      existingInvoice.status !== "COMPLETED_AND_CLAIMED";
+
     const invoice = await prisma.invoice.update({
       where: { id },
-      data: body,
+      data: body as {
+        clientId?: string;
+        packageId?: string | null;
+        totalAmount?: number;
+        maxNumberSessions?: number;
+        photosFolderPath?: string | null;
+        notes?: string | null;
+        status?: InvoiceStatus;
+      },
       include: {
         client: {
           select: {
@@ -399,6 +415,48 @@ export async function updateInvoice(
       } catch (error) {
         // Log error but don't fail invoice update if reminder creation fails
         console.error("Failed to create photos ready reminders:", error);
+      }
+    }
+
+    // Eliminar todos los recordatorios si el status cambió a COMPLETED_AND_CLAIMED
+    // Esto incluye recordatorios de la factura y de todas sus sesiones
+    if (isChangingToCompletedAndClaimed) {
+      try {
+        // Obtener todas las sesiones de la factura
+        const sessions = await prisma.session.findMany({
+          where: { invoiceId: id },
+          select: { id: true },
+        });
+
+        const sessionIds = sessions.map((session) => session.id);
+
+        // Eliminar todos los recordatorios relacionados con la factura
+        await prisma.reminder.deleteMany({
+          where: {
+            invoiceId: id,
+          },
+        });
+
+        // Eliminar todos los recordatorios relacionados con las sesiones de la factura
+        if (sessionIds.length > 0) {
+          await prisma.reminder.deleteMany({
+            where: {
+              sessionId: {
+                in: sessionIds,
+              },
+            },
+          });
+        }
+
+        console.log(
+          `[Invoice Controller] Eliminados todos los recordatorios para invoice ${id} (${existingInvoice.client.name}) al cambiar a COMPLETED_AND_CLAIMED`
+        );
+      } catch (error) {
+        // Log error but don't fail invoice update if reminder deletion fails
+        console.error(
+          "Failed to delete reminders when changing to COMPLETED_AND_CLAIMED:",
+          error
+        );
       }
     }
 
