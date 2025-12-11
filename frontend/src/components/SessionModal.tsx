@@ -259,7 +259,7 @@ function SessionModal({
                       type="text"
                       value={photo}
                       onChange={(e) => handlePhotoChange(index, e.target.value)}
-                      placeholder="URL o ruta de la foto"
+                      placeholder="Identificador de foto"
                       className="flex-1"
                     />
                     <Button
