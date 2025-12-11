@@ -62,7 +62,7 @@ function SessionModal({
       setFormData({
         sessionNumber: sessionData.sessionNumber,
         scheduledAt: sessionData.scheduledAt
-          ? new Date(sessionData.scheduledAt).toISOString().slice(0, 16)
+          ? convertFromISOToLocal(sessionData.scheduledAt)
           : null,
         status: sessionData.status,
         selectedPhotos: sessionData.selectedPhotos,
@@ -124,12 +124,12 @@ function SessionModal({
         return;
       }
 
-      // Convertir scheduledAt a formato ISO si existe
+      // Convertir scheduledAt a formato ISO si existe, considerando zona horaria de Colombia
       const submitData: UpdateSessionRequest = {
         ...formData,
         selectedPhotos: uniquePhotos,
         scheduledAt: formData.scheduledAt
-          ? new Date(formData.scheduledAt).toISOString()
+          ? convertToColombiaISO(formData.scheduledAt)
           : null,
         sessionNumber:
           formData.sessionNumber && formData.sessionNumber > 0
@@ -150,6 +150,40 @@ function SessionModal({
     }
   };
 
+  // Convertir datetime-local a ISO string considerando zona horaria de Colombia
+  const convertToColombiaISO = (dateTimeLocal: string): string => {
+    // El formato datetime-local es "YYYY-MM-DDTHH:mm"
+    // Lo interpretamos como hora de Colombia (America/Bogota, UTC-5)
+    // Agregamos segundos y el offset de Colombia para crear un string ISO válido
+    const dateTimeWithOffset = `${dateTimeLocal}:00-05:00`;
+    const date = new Date(dateTimeWithOffset);
+    return date.toISOString();
+  };
+
+  // Convertir ISO string a datetime-local para el input
+  const convertFromISOToLocal = (isoString: string): string => {
+    // Convertir ISO a hora de Colombia usando Intl.DateTimeFormat
+    const date = new Date(isoString);
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Bogota",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+
+    const parts = formatter.formatToParts(date);
+    const year = parts.find((p) => p.type === "year")?.value;
+    const month = parts.find((p) => p.type === "month")?.value;
+    const day = parts.find((p) => p.type === "day")?.value;
+    const hours = parts.find((p) => p.type === "hour")?.value;
+    const minutes = parts.find((p) => p.type === "minute")?.value;
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   const formatDate = (dateString: string | null): string => {
     if (!dateString) return "-";
     return new Date(dateString).toLocaleDateString("es-CO", {
@@ -158,6 +192,7 @@ function SessionModal({
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
+      timeZone: "America/Bogota",
     });
   };
 
