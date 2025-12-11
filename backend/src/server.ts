@@ -15,17 +15,27 @@ async function startServer(): Promise<void> {
     await prisma.$connect();
     console.log("✅ Database connected successfully");
 
-    // Configurar CRON job para ejecutarse todos los días a las 8:00 AM (hora Colombia UTC-5)
-    // La expresión cron "0 13 * * *" significa: a las 13:00 UTC (8:00 AM Colombia)
-    cron.schedule("0 13 * * *", async () => {
-      console.log("[CRON] Ejecutando job de recordatorios diarios...");
-      try {
-        await processDailyReminders();
-        console.log("[CRON] Job de recordatorios completado exitosamente");
-      } catch (error) {
-        console.error("[CRON] Error al ejecutar job de recordatorios:", error);
+    // Configurar CRON job para ejecutarse todos los días a las 8:00 AM (hora Colombia)
+    // Usando timezone: "America/Bogota" para que funcione correctamente sin importar
+    // la zona horaria del servidor donde se despliegue
+    cron.schedule(
+      "10 1 * * *",
+      async () => {
+        console.log("[CRON] Ejecutando job de recordatorios diarios...");
+        try {
+          await processDailyReminders();
+          console.log("[CRON] Job de recordatorios completado exitosamente");
+        } catch (error) {
+          console.error(
+            "[CRON] Error al ejecutar job de recordatorios:",
+            error
+          );
+        }
+      },
+      {
+        timezone: "America/Bogota",
       }
-    });
+    );
 
     console.log(
       "✅ CRON job configurado: Recordatorios diarios a las 8:00 AM (Colombia)"
