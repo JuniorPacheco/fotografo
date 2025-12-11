@@ -10,7 +10,11 @@ import { setupSwagger } from "./config/swagger";
 
 function createApp(): Express {
   const app = express();
-
+  console.log(
+    "Allowed Origins:",
+    ENVIRONMENTS.ALLOWED_ORIGINS,
+    ENVIRONMENTS.ALLOWED_ORIGINS?.split(",") || "*"
+  );
   // 1. Security middleware (ALWAYS FIRST)
   app.use(helmet());
   app.disable("x-powered-by");
