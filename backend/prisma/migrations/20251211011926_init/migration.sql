@@ -1,14 +1,20 @@
--- CreateEnum
-CREATE TYPE "invoice_status" AS ENUM ('PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED');
+-- CreateSchema
+CREATE SCHEMA IF NOT EXISTS "public";
 
 -- CreateEnum
-CREATE TYPE "session_status" AS ENUM ('SCHEDULED', 'COMPLETED', 'CANCELLED');
+CREATE TYPE "invoice_status" AS ENUM ('PENDING', 'IN_PROGRESS', 'COMPLETED_PENDING_PHOTOS', 'COMPLETED_PHOTOS_READY', 'COMPLETED_AND_CLAIMED', 'CANCELLED');
+
+-- CreateEnum
+CREATE TYPE "session_status" AS ENUM ('SCHEDULED', 'COMPLETED_UNCLAIMED', 'COMPLETED_AND_CLAIMED', 'CANCELLED');
 
 -- CreateEnum
 CREATE TYPE "payment_method" AS ENUM ('CASH', 'TRANSFER', 'CARD', 'OTHER');
 
 -- CreateEnum
 CREATE TYPE "user_role" AS ENUM ('OWNER', 'ADMIN', 'PHOTOGRAPHER', 'ASSISTANT', 'VIEWER');
+
+-- CreateEnum
+CREATE TYPE "reminder_type" AS ENUM ('SESSION_COMPLETED', 'PHOTOS_READY_3_MONTHS', 'PHOTOS_READY_10_MONTHS');
 
 -- CreateTable
 CREATE TABLE "users" (
@@ -30,7 +36,9 @@ CREATE TABLE "clients" (
     "name" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
     "address" TEXT NOT NULL,
+    "email" TEXT,
     "cedula" TEXT,
+    "deletedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -38,13 +46,26 @@ CREATE TABLE "clients" (
 );
 
 -- CreateTable
+CREATE TABLE "packages" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "suggestedPrice" DECIMAL(10,2) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "packages_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "invoices" (
     "id" TEXT NOT NULL,
     "clientId" TEXT NOT NULL,
+    "packageId" TEXT,
     "totalAmount" DECIMAL(10,2) NOT NULL,
-    "paidAmount" DECIMAL(10,2) NOT NULL DEFAULT 0,
     "status" "invoice_status" NOT NULL DEFAULT 'PENDING',
-    "isSingleSession" BOOLEAN NOT NULL DEFAULT false,
+    "maxNumberSessions" INTEGER NOT NULL DEFAULT 1,
+    "photosFolderPath" TEXT,
     "notes" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -59,22 +80,13 @@ CREATE TABLE "sessions" (
     "sessionNumber" INTEGER NOT NULL,
     "scheduledAt" TIMESTAMP(3),
     "status" "session_status" NOT NULL DEFAULT 'SCHEDULED',
+    "selectedPhotos" TEXT[],
     "notes" TEXT,
+    "googleEventId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "sessions_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "selected_photos" (
-    "id" TEXT NOT NULL,
-    "sessionId" TEXT NOT NULL,
-    "photoUrl" TEXT NOT NULL,
-    "photoName" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "selected_photos_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -90,6 +102,37 @@ CREATE TABLE "payments" (
     CONSTRAINT "payments_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "google_tokens" (
+    "id" TEXT NOT NULL,
+    "accessToken" TEXT NOT NULL,
+    "refreshToken" TEXT NOT NULL,
+    "scope" TEXT NOT NULL,
+    "expiryDate" TIMESTAMP(3) NOT NULL,
+    "calendarId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "google_tokens_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "reminders" (
+    "id" TEXT NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL,
+    "clientName" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "type" "reminder_type" NOT NULL,
+    "invoiceId" TEXT,
+    "sessionId" TEXT,
+    "sentAt" TIMESTAMP(3),
+    "isSent" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "reminders_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
@@ -100,7 +143,16 @@ CREATE INDEX "users_role_idx" ON "users"("role");
 CREATE INDEX "users_isActive_idx" ON "users"("isActive");
 
 -- CreateIndex
+CREATE INDEX "clients_deletedAt_idx" ON "clients"("deletedAt");
+
+-- CreateIndex
+CREATE INDEX "packages_deletedAt_idx" ON "packages"("deletedAt");
+
+-- CreateIndex
 CREATE INDEX "invoices_clientId_idx" ON "invoices"("clientId");
+
+-- CreateIndex
+CREATE INDEX "invoices_packageId_idx" ON "invoices"("packageId");
 
 -- CreateIndex
 CREATE INDEX "invoices_status_idx" ON "invoices"("status");
@@ -115,22 +167,41 @@ CREATE INDEX "sessions_scheduledAt_idx" ON "sessions"("scheduledAt");
 CREATE UNIQUE INDEX "sessions_invoiceId_sessionNumber_key" ON "sessions"("invoiceId", "sessionNumber");
 
 -- CreateIndex
-CREATE INDEX "selected_photos_sessionId_idx" ON "selected_photos"("sessionId");
-
--- CreateIndex
 CREATE INDEX "payments_invoiceId_idx" ON "payments"("invoiceId");
 
 -- CreateIndex
 CREATE INDEX "payments_paymentDate_idx" ON "payments"("paymentDate");
 
+-- CreateIndex
+CREATE INDEX "reminders_date_idx" ON "reminders"("date");
+
+-- CreateIndex
+CREATE INDEX "reminders_isSent_idx" ON "reminders"("isSent");
+
+-- CreateIndex
+CREATE INDEX "reminders_type_idx" ON "reminders"("type");
+
+-- CreateIndex
+CREATE INDEX "reminders_invoiceId_idx" ON "reminders"("invoiceId");
+
+-- CreateIndex
+CREATE INDEX "reminders_sessionId_idx" ON "reminders"("sessionId");
+
 -- AddForeignKey
 ALTER TABLE "invoices" ADD CONSTRAINT "invoices_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "clients"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "invoices" ADD CONSTRAINT "invoices_packageId_fkey" FOREIGN KEY ("packageId") REFERENCES "packages"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "sessions" ADD CONSTRAINT "sessions_invoiceId_fkey" FOREIGN KEY ("invoiceId") REFERENCES "invoices"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "selected_photos" ADD CONSTRAINT "selected_photos_sessionId_fkey" FOREIGN KEY ("sessionId") REFERENCES "sessions"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "payments" ADD CONSTRAINT "payments_invoiceId_fkey" FOREIGN KEY ("invoiceId") REFERENCES "invoices"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "payments" ADD CONSTRAINT "payments_invoiceId_fkey" FOREIGN KEY ("invoiceId") REFERENCES "invoices"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "reminders" ADD CONSTRAINT "reminders_invoiceId_fkey" FOREIGN KEY ("invoiceId") REFERENCES "invoices"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "reminders" ADD CONSTRAINT "reminders_sessionId_fkey" FOREIGN KEY ("sessionId") REFERENCES "sessions"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
