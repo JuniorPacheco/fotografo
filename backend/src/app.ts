@@ -19,8 +19,6 @@ function createApp(): Express {
         .filter(Boolean)
     : [];
 
-  console.log("Allowed Origins:", allowedOrigins);
-
   // Configurar CORS con validación de origen
   app.use(
     cors({
