@@ -19,7 +19,7 @@ async function startServer(): Promise<void> {
     // Usando timezone: "America/Bogota" para que funcione correctamente sin importar
     // la zona horaria del servidor donde se despliegue
     cron.schedule(
-      "30 1 * * *",
+      "0 8 * * *",
       async () => {
         console.log("[CRON] Ejecutando job de recordatorios diarios...");
         try {
