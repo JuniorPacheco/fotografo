@@ -22,6 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Eye, Trash2, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { formatDateShort } from "@/lib/date.utils";
 
 function Pagos() {
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -104,16 +105,6 @@ function Pagos() {
       style: "currency",
       currency: "COP",
     }).format(amount);
-  };
-
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString("es-CO", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
   };
 
   const getMethodLabel = (method: Payment["method"]): string => {
@@ -204,7 +195,9 @@ function Pagos() {
                         {formatCurrency(Number(payment.amount))}
                       </TableCell>
                       <TableCell>{getMethodLabel(payment.method)}</TableCell>
-                      <TableCell>{formatDate(payment.paymentDate)}</TableCell>
+                      <TableCell>
+                        {formatDateShort(payment.paymentDate)}
+                      </TableCell>
                       <TableCell>{payment.notes || "-"}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">

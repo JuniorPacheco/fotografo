@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { convertToColombiaISO } from "@/lib/date.utils";
 
 interface CreatePaymentModalProps {
   isOpen: boolean;
@@ -98,11 +99,11 @@ function CreatePaymentModal({
     setIsLoading(true);
     setAmountError("");
     try {
-      // Convertir paymentDate a formato ISO si existe
+      // Convertir paymentDate a formato ISO si existe, considerando zona horaria de Colombia
       const submitData: CreatePaymentRequest = {
         ...formData,
         paymentDate: formData.paymentDate
-          ? new Date(formData.paymentDate).toISOString()
+          ? convertToColombiaISO(formData.paymentDate)
           : undefined,
       };
       await paymentService.create(submitData);

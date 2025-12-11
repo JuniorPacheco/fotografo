@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { convertToColombiaISO, convertFromISOToLocal } from "@/lib/date.utils";
 
 interface PaymentModalProps {
   paymentId: string | null;
@@ -62,7 +63,7 @@ function PaymentModal({
         amount: Number(paymentData.amount),
         method: paymentData.method,
         paymentDate: paymentData.paymentDate
-          ? new Date(paymentData.paymentDate).toISOString().slice(0, 16)
+          ? convertFromISOToLocal(paymentData.paymentDate)
           : null,
         notes: paymentData.notes,
       });
@@ -110,11 +111,11 @@ function PaymentModal({
     setIsSaving(true);
     setAmountError("");
     try {
-      // Convertir paymentDate a formato ISO si existe
+      // Convertir paymentDate a formato ISO si existe, considerando zona horaria de Colombia
       const submitData: UpdatePaymentRequest = {
         ...formData,
         paymentDate: formData.paymentDate
-          ? new Date(formData.paymentDate).toISOString()
+          ? convertToColombiaISO(formData.paymentDate)
           : null,
       };
       await paymentService.update(paymentId, submitData);

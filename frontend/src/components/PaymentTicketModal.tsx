@@ -5,6 +5,7 @@ import { invoiceService } from "@/services/invoice.service";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
+import { formatDate } from "@/lib/date.utils";
 
 interface PaymentTicketModalProps {
   paymentId: string | null;
@@ -80,16 +81,6 @@ function PaymentTicketModal({
       currency: "COP",
       minimumFractionDigits: 0,
     }).format(amount);
-  };
-
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleString("es-CO", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
   };
 
   const getMethodLabel = (method: Payment["method"]): string => {

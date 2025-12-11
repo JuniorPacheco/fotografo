@@ -1,7 +1,8 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Printer } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { formatDate, formatTime } from "@/lib/date.utils";
 import type { DailySales } from "@/types/dailySales";
+import { Printer } from "lucide-react";
 
 interface DailySalesTicketModalProps {
   dailySales: DailySales;
@@ -26,14 +27,6 @@ function DailySalesTicketModal({
     }).format(amount);
   };
 
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString("es-CO", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
   const getMethodLabel = (method: string): string => {
     const labels: Record<string, string> = {
       CASH: "Efectivo",
@@ -42,13 +35,6 @@ function DailySalesTicketModal({
       OTHER: "Otro",
     };
     return labels[method] || method;
-  };
-
-  const formatTime = (dateString: string): string => {
-    return new Date(dateString).toLocaleTimeString("es-CO", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
   };
 
   return (

@@ -20,6 +20,11 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { X } from "lucide-react";
+import {
+  convertToColombiaISO,
+  convertFromISOToLocal,
+  formatDate,
+} from "@/lib/date.utils";
 
 interface SessionModalProps {
   sessionId: string | null;
@@ -148,52 +153,6 @@ function SessionModal({
     } finally {
       setIsSaving(false);
     }
-  };
-
-  // Convertir datetime-local a ISO string considerando zona horaria de Colombia
-  const convertToColombiaISO = (dateTimeLocal: string): string => {
-    // El formato datetime-local es "YYYY-MM-DDTHH:mm"
-    // Lo interpretamos como hora de Colombia (America/Bogota, UTC-5)
-    // Agregamos segundos y el offset de Colombia para crear un string ISO válido
-    const dateTimeWithOffset = `${dateTimeLocal}:00-05:00`;
-    const date = new Date(dateTimeWithOffset);
-    return date.toISOString();
-  };
-
-  // Convertir ISO string a datetime-local para el input
-  const convertFromISOToLocal = (isoString: string): string => {
-    // Convertir ISO a hora de Colombia usando Intl.DateTimeFormat
-    const date = new Date(isoString);
-    const formatter = new Intl.DateTimeFormat("en-US", {
-      timeZone: "America/Bogota",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
-
-    const parts = formatter.formatToParts(date);
-    const year = parts.find((p) => p.type === "year")?.value;
-    const month = parts.find((p) => p.type === "month")?.value;
-    const day = parts.find((p) => p.type === "day")?.value;
-    const hours = parts.find((p) => p.type === "hour")?.value;
-    const minutes = parts.find((p) => p.type === "minute")?.value;
-
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  };
-
-  const formatDate = (dateString: string | null): string => {
-    if (!dateString) return "-";
-    return new Date(dateString).toLocaleDateString("es-CO", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "America/Bogota",
-    });
   };
 
   return (

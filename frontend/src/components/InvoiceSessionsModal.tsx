@@ -22,6 +22,7 @@ import { Calendar, Pencil, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import CreateSessionModal from "./CreateSessionModal";
 import SessionModal from "./SessionModal";
+import { formatDateShort } from "@/lib/date.utils";
 
 interface InvoiceSessionsModalProps {
   invoiceId: string | null;
@@ -103,17 +104,6 @@ function InvoiceSessionsModal({
   const handleCreated = () => {
     loadSessions();
     onUpdate();
-  };
-
-  const formatDate = (dateString: string | null): string => {
-    if (!dateString) return "-";
-    return new Date(dateString).toLocaleDateString("es-CO", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
   };
 
   const getStatusLabel = (status: Session["status"]): string => {
@@ -237,7 +227,7 @@ function InvoiceSessionsModal({
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <Calendar className="h-4 w-4 text-muted-foreground" />
-                              {formatDate(session.scheduledAt)}
+                              {formatDateShort(session.scheduledAt)}
                             </div>
                           </TableCell>
                           <TableCell>

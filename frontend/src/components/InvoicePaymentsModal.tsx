@@ -22,6 +22,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Pencil, Trash2, Plus, Printer } from "lucide-react";
 import PaymentTicketModal from "./PaymentTicketModal";
+import { formatDateShort } from "@/lib/date.utils";
 
 interface InvoicePaymentsModalProps {
   invoiceId: string | null;
@@ -126,16 +127,6 @@ function InvoicePaymentsModal({
     }).format(amount);
   };
 
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString("es-CO", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   const getMethodLabel = (method: Payment["method"]): string => {
     const labels: Record<Payment["method"], string> = {
       CASH: "Efectivo",
@@ -234,7 +225,7 @@ function InvoicePaymentsModal({
                             {getMethodLabel(payment.method)}
                           </TableCell>
                           <TableCell>
-                            {formatDate(payment.paymentDate)}
+                            {formatDateShort(payment.paymentDate)}
                           </TableCell>
                           <TableCell>{payment.notes || "-"}</TableCell>
                           <TableCell className="text-right">

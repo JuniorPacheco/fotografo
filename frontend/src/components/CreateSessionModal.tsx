@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { X } from "lucide-react";
+import { convertToColombiaISO } from "@/lib/date.utils";
 
 interface CreateSessionModalProps {
   isOpen: boolean;
@@ -108,12 +109,12 @@ function CreateSessionModal({
         return;
       }
 
-      // Convertir scheduledAt a formato ISO si existe
+      // Convertir scheduledAt a formato ISO si existe, considerando zona horaria de Colombia
       const submitData: CreateSessionRequest = {
         ...formData,
         selectedPhotos: uniquePhotos,
         scheduledAt: formData.scheduledAt
-          ? new Date(formData.scheduledAt).toISOString()
+          ? convertToColombiaISO(formData.scheduledAt)
           : undefined,
         sessionNumber:
           formData.sessionNumber && formData.sessionNumber > 0
@@ -140,26 +141,6 @@ function CreateSessionModal({
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Convertir datetime-local a formato compatible
-  const getLocalDateTimeString = (dateTime: string): string => {
-    if (!dateTime) return "";
-    // Si ya está en formato datetime-local, retornarlo
-    if (dateTime.includes("T") && !dateTime.includes("Z")) {
-      return dateTime;
-    }
-    // Si está en formato ISO, convertir a datetime-local
-    if (dateTime.includes("T")) {
-      const date = new Date(dateTime);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      const hours = String(date.getHours()).padStart(2, "0");
-      const minutes = String(date.getMinutes()).padStart(2, "0");
-      return `${year}-${month}-${day}T${hours}:${minutes}`;
-    }
-    return dateTime;
   };
 
   return (
@@ -204,7 +185,7 @@ function CreateSessionModal({
             <Input
               type="datetime-local"
               id="create-scheduledAt"
-              value={getLocalDateTimeString(formData.scheduledAt || "")}
+              value={formData.scheduledAt || ""}
               onChange={(e) =>
                 setFormData({
                   ...formData,

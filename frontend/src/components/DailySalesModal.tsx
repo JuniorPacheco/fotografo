@@ -20,6 +20,7 @@ import { paymentService } from "@/services/payment.service";
 import type { DailySales } from "@/types/dailySales";
 import DailySalesTicketModal from "./DailySalesTicketModal";
 import { Printer } from "lucide-react";
+import { formatDateOnly, formatTime } from "@/lib/date.utils";
 
 interface DailySalesModalProps {
   isOpen: boolean;
@@ -83,21 +84,6 @@ function DailySalesModal({ isOpen, onClose }: DailySalesModalProps) {
     }).format(amount);
   };
 
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString("es-CO", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
-  const formatTime = (dateString: string): string => {
-    return new Date(dateString).toLocaleTimeString("es-CO", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   const getMethodLabel = (method: string): string => {
     const labels: Record<string, string> = {
       CASH: "Efectivo",
@@ -141,7 +127,7 @@ function DailySalesModal({ isOpen, onClose }: DailySalesModalProps) {
                   <div className="flex justify-between items-center">
                     <h3 className="font-semibold">Resumen del Día</h3>
                     <span className="text-sm text-muted-foreground">
-                      {formatDate(dailySales.date)}
+                      {formatDateOnly(dailySales.date)}
                     </span>
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-sm">
