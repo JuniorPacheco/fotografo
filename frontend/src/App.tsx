@@ -9,12 +9,16 @@ import Paquetes from "./pages/Paquetes";
 import Recordatorios from "./pages/Recordatorios";
 import Login from "./pages/Login";
 import GoogleCallback from "./pages/GoogleCallback";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 
 function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/google/callback" element={<GoogleCallback />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+      <Route path="/terms-of-service" element={<TermsOfService />} />
       <Route
         path="/"
         element={

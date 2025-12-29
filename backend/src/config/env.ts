@@ -14,4 +14,6 @@ export const ENVIRONMENTS = {
   BREVO_API_KEY: process.env.BREVO_API_KEY,
   BREVO_FROM_EMAIL: process.env.BREVO_FROM_EMAIL,
   BREVO_FROM_NAME: process.env.BREVO_FROM_NAME,
+  WHATSAPP_TOKEN: process.env.WHATSAPP_TOKEN,
+  PHONE_NUMBER_ID: process.env.PHONE_NUMBER_ID,
 };
