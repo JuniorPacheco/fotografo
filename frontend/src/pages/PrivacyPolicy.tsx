@@ -140,7 +140,7 @@ const PrivacyPolicy = () => {
             </p>
             <p className="text-foreground">
               <strong>Cabal Studios</strong><br />
-              Email: favacatoro@gmail.com
+              Email: cabalfotografia@gmail.com
             </p>
           </div>
         </section>

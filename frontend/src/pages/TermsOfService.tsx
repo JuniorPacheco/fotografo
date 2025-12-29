@@ -113,7 +113,7 @@ const TermsOfService = () => {
             <li>La eliminación de datos puede tomar hasta 30 días hábiles</li>
           </ul>
           <p className="text-foreground leading-relaxed mt-3">
-            Para solicitar la eliminación de datos, contacte a: favacatoro@gmail.com
+            Para solicitar la eliminación de datos, contacte a: cabalfotografia@gmail.com
           </p>
         </section>
 
@@ -139,7 +139,7 @@ const TermsOfService = () => {
             </p>
             <p className="text-foreground">
               <strong>Cabal Studios</strong><br />
-              Email: favacatoro@gmail.com
+              Email: cabalfotografia@gmail.com
             </p>
           </div>
         </section>

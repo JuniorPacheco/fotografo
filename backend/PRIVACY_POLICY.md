@@ -90,7 +90,7 @@ Nos reservamos el derecho de actualizar esta política de privacidad. Cualquier 
 Para preguntas sobre esta política de privacidad o para ejercer sus derechos, puede contactarnos:
 
 **Cabal Studios**
-- Email: favacatoro@gmail.com
+- Email: cabalfotografia@gmail.com
 - [Agregar dirección física si es necesario]
 
 ## 13. Cumplimiento Legal
