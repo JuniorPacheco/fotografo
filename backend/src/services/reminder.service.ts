@@ -293,9 +293,6 @@ export async function processDailyReminders(): Promise<void> {
         const client = await prisma.client.findFirst({
           where: {
             name: reminder.clientName,
-            email: {
-              not: null,
-            },
             deletedAt: null,
           },
           select: {
@@ -304,9 +301,10 @@ export async function processDailyReminders(): Promise<void> {
           },
         });
 
-        if (!client || !client.email) {
+        // Validar que el cliente existe y tiene un email válido (no null, undefined ni string vacío)
+        if (!client || !client.email || client.email.trim() === "") {
           console.warn(
-            `[Reminder Service] Cliente "${reminder.clientName}" no encontrado o no tiene email. Recordatorio ID: ${reminder.id}`
+            `[Reminder Service] Cliente "${reminder.clientName}" no encontrado o no tiene email válido. Recordatorio ID: ${reminder.id}`
           );
           // Marcar como enviado aunque no se haya enviado realmente para evitar reintentos
           await prisma.reminder.update({

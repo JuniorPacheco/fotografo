@@ -33,4 +33,5 @@ Thumbs.db
 
 # Prisma
 prisma/migrations/
+/backend/src/generated/
 

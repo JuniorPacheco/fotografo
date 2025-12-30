@@ -239,7 +239,6 @@ function DailySalesModal({ isOpen, onClose }: DailySalesModalProps) {
           isOpen={isTicketModalOpen}
           onClose={() => {
             setIsTicketModalOpen(false);
-            setDailySales(null);
           }}
         />
       )}
