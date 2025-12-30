@@ -1,7 +1,6 @@
 import { prisma } from "../config/prisma";
 import { sendClientReminder } from "./email.service";
 import { AppError } from "../utils/errors";
-import { sendWhatsappReminderMessage } from "./whatsapp.service";
 
 /**
  * Constante para identificar recordatorios de sesiones completadas
@@ -240,37 +239,6 @@ function isSameDate(date1: Date, date2: Date): boolean {
 }
 
 /**
- * Mapea el tipo de recordatorio a un nombre de template de WhatsApp
- * Los nombres de templates deben coincidir con los creados en Facebook
- */
-function getWhatsAppTemplateName(reminderType: string): string {
-  const templateMap: Record<string, string> = {
-    SESSION_COMPLETED: "recordatorio_sesion_completada",
-    PHOTOS_READY_3_MONTHS: "recordatorio_fotos_listas_3_meses",
-    PHOTOS_READY_10_MONTHS: "recordatorio_fotos_listas_10_meses",
-  };
-
-  return templateMap[reminderType] || "recordatorio_general";
-}
-
-/**
- * Normaliza un número de teléfono para WhatsApp (elimina espacios, guiones, etc.)
- * y asegura que tenga el formato correcto (sin + al inicio)
- */
-function normalizePhoneNumber(phone: string): string {
-  // Eliminar espacios, guiones, paréntesis y el símbolo +
-  let normalized = phone.replace(/[\s\-\(\)\+]/g, "");
-
-  // Si el número no empieza con código de país, asumimos que es Colombia (57)
-  // Esto es una suposición, el usuario debería tener números en formato internacional
-  if (normalized.length === 10 && normalized.startsWith("3")) {
-    normalized = `57${normalized}`;
-  }
-
-  return normalized;
-}
-
-/**
  * Procesa y envía los recordatorios del día actual
  */
 export async function processDailyReminders(): Promise<void> {
@@ -318,25 +286,27 @@ export async function processDailyReminders(): Promise<void> {
       `[Reminder Service] Encontrados ${todayReminders.length} recordatorio(s) para enviar hoy`
     );
 
-    // Buscar el email y teléfono del cliente en la base de datos
+    // Buscar el email del cliente en la base de datos
     for (const reminder of todayReminders) {
       try {
         // Buscar cliente por nombre
         const client = await prisma.client.findFirst({
           where: {
             name: reminder.clientName,
+            email: {
+              not: null,
+            },
             deletedAt: null,
           },
           select: {
             email: true,
-            phone: true,
             name: true,
           },
         });
 
-        if (!client) {
+        if (!client || !client.email) {
           console.warn(
-            `[Reminder Service] Cliente "${reminder.clientName}" no encontrado. Recordatorio ID: ${reminder.id}`
+            `[Reminder Service] Cliente "${reminder.clientName}" no encontrado o no tiene email. Recordatorio ID: ${reminder.id}`
           );
           // Marcar como enviado aunque no se haya enviado realmente para evitar reintentos
           await prisma.reminder.update({
@@ -346,80 +316,26 @@ export async function processDailyReminders(): Promise<void> {
           continue;
         }
 
-        let emailSent = false;
-        let whatsappSent = false;
+        // Enviar el recordatorio por email
+        await sendClientReminder(
+          client.email,
+          client.name || reminder.clientName,
+          reminder.clientName,
+          reminder.description
+        );
 
-        // Enviar el recordatorio por email si el cliente tiene email
-        if (client.email) {
-          try {
-            await sendClientReminder(
-              client.email,
-              client.name || reminder.clientName,
-              reminder.clientName,
-              reminder.description
-            );
-            emailSent = true;
-            console.log(
-              `[Reminder Service] Recordatorio enviado por email a ${client.email} para cliente ${reminder.clientName}`
-            );
-          } catch (error) {
-            console.error(
-              `[Reminder Service] Error al enviar recordatorio por email ID ${reminder.id}:`,
-              error
-            );
-          }
-        } else {
-          console.warn(
-            `[Reminder Service] Cliente "${reminder.clientName}" no tiene email. Recordatorio ID: ${reminder.id}`
-          );
-        }
+        // Marcar como enviado
+        await prisma.reminder.update({
+          where: { id: reminder.id },
+          data: { sentAt: new Date(), isSent: true },
+        });
 
-        // Enviar el recordatorio por WhatsApp si el cliente tiene teléfono
-        if (client.phone) {
-          try {
-            const normalizedPhone = normalizePhoneNumber(client.phone);
-            const templateName = getWhatsAppTemplateName(reminder.type);
-
-            await sendWhatsappReminderMessage(
-              normalizedPhone,
-              templateName,
-              "es_MX"
-            );
-            whatsappSent = true;
-            console.log(
-              `[Reminder Service] Recordatorio enviado por WhatsApp a ${normalizedPhone} para cliente ${reminder.clientName}`
-            );
-          } catch (error) {
-            console.error(
-              `[Reminder Service] Error al enviar recordatorio por WhatsApp ID ${reminder.id}:`,
-              error
-            );
-            // No lanzamos el error, solo lo registramos para que el proceso continúe
-          }
-        } else {
-          console.warn(
-            `[Reminder Service] Cliente "${reminder.clientName}" no tiene teléfono. Recordatorio ID: ${reminder.id}`
-          );
-        }
-
-        // Marcar como enviado solo si se envió por al menos un canal (email o WhatsApp)
-        if (emailSent || whatsappSent) {
-          await prisma.reminder.update({
-            where: { id: reminder.id },
-            data: { sentAt: new Date(), isSent: true },
-          });
-          console.log(
-            `[Reminder Service] Recordatorio ID ${reminder.id} marcado como enviado (Email: ${emailSent}, WhatsApp: ${whatsappSent})`
-          );
-        } else {
-          console.warn(
-            `[Reminder Service] No se pudo enviar el recordatorio ID ${reminder.id} por ningún canal. Se reintentará mañana.`
-          );
-          // No marcamos como enviado si no se pudo enviar por ningún canal
-        }
+        console.log(
+          `[Reminder Service] Recordatorio enviado exitosamente a ${client.email} para cliente ${reminder.clientName}`
+        );
       } catch (error) {
         console.error(
-          `[Reminder Service] Error al procesar recordatorio ID ${reminder.id}:`,
+          `[Reminder Service] Error al enviar recordatorio ID ${reminder.id}:`,
           error
         );
         // No marcamos como enviado si hay error, para que se reintente mañana
